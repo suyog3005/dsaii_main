@@ -17,10 +17,11 @@ export default function Cylinder() {
     <mesh 
     castShadow receiveShadow
     ref={meshRef}>
-      <cylinderGeometry args={[5, 5, 4, 64, 1, true]} />
+      <cylinderGeometry args={[5, 5, 3, 64, 1, true]} />
       <meshPhysicalMaterial
-        color="#ffffff"
-        roughness={0.8}
+        color="#A9A9A9"
+        roughness={0.7}
+        metalness={0.4}
         side={THREE.DoubleSide}
       />
     </mesh>

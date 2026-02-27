@@ -24,3 +24,45 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.hero-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.overlay-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.overlay-content {
+  width: 38%;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 26px;
+  line-height: 1.7;
+  letter-spacing: 0.2px;
+}
+
+.main-text {
+  margin-bottom: 40px;
+  font-weight: 400;
+}
+
+.link {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.cta {
+  font-size: 22px;
+  margin-top: 30px;
+  text-decoration: underline;
+  cursor: pointer;
+}

@@ -1,21 +1,17 @@
 "use client"
 
 import { Canvas, useThree } from "@react-three/fiber"
-import { OrbitControls, useHelper} from "@react-three/drei"
+import { OrbitControls, useHelper } from "@react-three/drei"
 import { useEffect, useRef, useState } from "react"
 import * as THREE from "three"
-import Cylinder from "./Cylinder"
-import CameraRig from "./CameraRig"  // temporarily disable
-
 import { MeshReflectorMaterial } from "@react-three/drei"
-
+import Cylinder, { PANEL_CONTENT } from "./Cylinder"
+import CameraRig from "./CameraRig"
 import { useVideoTexture } from "../../hooks/useVideoTexture"
 
-
-
-
+// ── Lights (original, untouched) ────────────────────────────────────────────
 function Lights() {
-  const lightRef1 = useRef<THREE.SpotLight>(null!) //
+  const lightRef1 = useRef<THREE.SpotLight>(null!)
   const lightRef2 = useRef<THREE.SpotLight>(null!)
   const lightRef3 = useRef<THREE.SpotLight>(null!)
   const lightRef4 = useRef<THREE.SpotLight>(null!)
@@ -25,43 +21,35 @@ function Lights() {
   const target3 = useRef<THREE.Object3D>(null!)
   const target4 = useRef<THREE.Object3D>(null!)
 
-  //Spotlight cone visible (debug helper) 
-  // useHelper(lightRef1, THREE.SpotLightHelper, "cyan") ;
-  // useHelper(lightRef2, THREE.SpotLightHelper, "cyan") ;
-  // useHelper(lightRef3, THREE.SpotLightHelper, "yellow");
-  // useHelper(lightRef4, THREE.SpotLightHelper, "green");
+  // Spotlight cone visible (debug helper)
+  // useHelper(lightRef1, THREE.SpotLightHelper, "cyan")
+  // useHelper(lightRef2, THREE.SpotLightHelper, "cyan")
+  // useHelper(lightRef3, THREE.SpotLightHelper, "yellow")
+  // useHelper(lightRef4, THREE.SpotLightHelper, "green")
 
   useEffect(() => {
     if (lightRef1.current && target1.current) {
-    lightRef1.current.target = target1.current
-    target1.current.updateMatrixWorld()
-  }
-
-  if (lightRef2.current && target2.current) {
-    lightRef2.current.target = target2.current
-    target2.current.updateMatrixWorld()
-  }
-
-  if (lightRef3.current && target3.current) {
-    lightRef3.current.target = target3.current
-    target3.current.updateMatrixWorld()
-  }
-
-  if (lightRef4.current && target4.current) {
-    lightRef4.current.target = target4.current
-    target4.current.updateMatrixWorld()
-  }
-    
+      lightRef1.current.target = target1.current
+      target1.current.updateMatrixWorld()
+    }
+    if (lightRef2.current && target2.current) {
+      lightRef2.current.target = target2.current
+      target2.current.updateMatrixWorld()
+    }
+    if (lightRef3.current && target3.current) {
+      lightRef3.current.target = target3.current
+      target3.current.updateMatrixWorld()
+    }
+    if (lightRef4.current && target4.current) {
+      lightRef4.current.target = target4.current
+      target4.current.updateMatrixWorld()
+    }
   }, [])
 
   return (
     <>
       <ambientLight intensity={0.2} />
-
-      <directionalLight 
-        position={[-10, 30, -5]} 
-        intensity={0.15} 
-      />
+      <directionalLight position={[-10, 30, -5]} intensity={0.15} />
 
       {/* Top Spotlight */}
       <spotLight
@@ -77,7 +65,7 @@ function Lights() {
       />
       <object3D ref={target1} position={[0, 0, 0]} />
 
-      {/* Side Spotlight  position={[5, 15, 6]} */}
+      {/* Side Spotlight */}
       <spotLight
         ref={lightRef2}
         position={[5, 15, 6]}
@@ -91,7 +79,7 @@ function Lights() {
       />
       <object3D ref={target2} position={[0, 0, 0]} />
 
-      {/* top right plane Spotlight */}
+      {/* Top right plane Spotlight */}
       <spotLight
         ref={lightRef3}
         position={[27, 8, -12]}
@@ -104,7 +92,7 @@ function Lights() {
       />
       <object3D ref={target3} position={[27, 0, -12]} />
 
-      {/* top left plane Spotlight */}
+      {/* Top left plane Spotlight */}
       <spotLight
         ref={lightRef4}
         position={[-24, 6, -12]}
@@ -115,18 +103,15 @@ function Lights() {
         decay={2}
         castShadow
       />
-
-
-      <object3D ref={target4} position={[-24, 0, -12]} /> 
+      <object3D ref={target4} position={[-24, 0, -12]} />
     </>
   )
 }
 
+// ── Debug helper: single video plane (original) ─────────────────────────────
 function VideoTest() {
   const tex = useVideoTexture("/videos/v1.mp4")
-
   if (!tex) return null
-
   return (
     <mesh position={[0, 5, 0]}>
       <planeGeometry args={[10, 6]} />
@@ -135,37 +120,25 @@ function VideoTest() {
   )
 }
 
+// ── Debug helper: camera direction arrow (original) ─────────────────────────
 function InitialCameraArrow() {
   const { scene } = useThree()
-
   useEffect(() => {
-    const start = new THREE.Vector3(5, 20, 10)
-    const target = new THREE.Vector3(5, 0, 0)
-
-    const direction = new THREE.Vector3()
-      .subVectors(target, start)
-      .normalize()
-
-    const length = 10
-    const color = 0xff0000
-
-    const arrow = new THREE.ArrowHelper(direction, start, length, color)
-
+    const start     = new THREE.Vector3(5, 20, 10)
+    const target    = new THREE.Vector3(5, 0, 0)
+    const direction = new THREE.Vector3().subVectors(target, start).normalize()
+    const arrow     = new THREE.ArrowHelper(direction, start, 10, 0xff0000)
     scene.add(arrow)
-
-    return () => {
-      scene.remove(arrow)
-    }
+    return () => { scene.remove(arrow) }
   }, [scene])
-
   return null
 }
 
-
+// ── Debug helper: flat video panels (original) ──────────────────────────────
 function VideoPanels() {
-  const radius = 5
-  const height = 6
-  const total = 4
+  const radius    = 5
+  const height    = 6
+  const total     = 4
   const angleStep = (Math.PI * 2) / total
 
   const textures = [
@@ -179,18 +152,12 @@ function VideoPanels() {
     <>
       {textures.map((tex, i) => {
         if (!tex) return null
-
         const angle = i * angleStep
-        const x = Math.sin(angle) * radius
-        const z = Math.cos(angle) * radius
-
+        const x     = Math.sin(angle) * radius
+        const z     = Math.cos(angle) * radius
         return (
-          <mesh
-            key={i}
-            position={[x, 0, z]}
-            rotation={[0, angle, 0]}
-          >
-            <planeGeometry args={[4, height,32,1]} />
+          <mesh key={i} position={[x, 0, z]} rotation={[0, angle, 0]}>
+            <planeGeometry args={[4, height, 32, 1]} />
             <meshBasicMaterial map={tex} toneMapped={false} />
           </mesh>
         )
@@ -199,33 +166,80 @@ function VideoPanels() {
   )
 }
 
+// ── Dynamic overlay — changes with active cylinder panel ────────────────────
+type OverlayProps = {
+  activePanel: number
+  visible: boolean
+}
 
-export default function Scene() {
+function PanelOverlay({ activePanel, visible }: OverlayProps) {
+  const panel = PANEL_CONTENT[activePanel] ?? PANEL_CONTENT[0]
+
+  return (
+    <div
+      className={`
+        text-end absolute transition-opacity duration-500
+        md:left-10 md:bottom-[14%] md:w-[38%]
+        left-0 bottom-[10%] w-full px-6
+        ${visible ? "opacity-100" : "opacity-0"}
+      `}
+      style={{ pointerEvents: visible ? "auto" : "none" }}
+    >
+      <p
+        className="text-white font-bold leading-[1.05] mb-5"
+        style={{ fontSize: "clamp(1.5rem, 4vw, 3.4rem)" }}
+      >
+        {panel.title}
+      </p>
+      <p className="text-white/70 font-light leading-relaxed mb-5 text-[0.9rem] md:text-[1rem]">
+        {panel.description}
+      </p>
+      <div className="w-10 h-[2px] mb-4" style={{ background: panel.accent }} />
+      <div className="flex items-center gap-3">
+        <span
+          className="tracking-wide text-[0.8rem] md:text-[0.9rem] font-light"
+          style={{ color: panel.accent }}
+        >
+          {panel.cta}
+        </span>
+        <span style={{ color: panel.accent }}>→</span>
+      </div>
+    </div>
+  )
+}
+
+// ── Scene ────────────────────────────────────────────────────────────────────
+type SceneProps = {
+  videoUrls?: string[]
+  videosReady?: boolean
+}
+
+export default function Scene({ videoUrls = [], videosReady = false }: SceneProps) {
   const [dragEnabled, setDragEnabled] = useState(false)
-  
+  const [activePanel, setActivePanel] = useState(0)
+
+  const isMobile =
+    typeof window !== "undefined" && window.innerWidth < 768
 
   return (
     <div className="absolute inset-0">
-      
       <Canvas
         shadows
-        camera={{ position: [10, 15, 25], fov: 45 }}  // free cam start
+        dpr={Math.min(
+          typeof window !== "undefined" ? window.devicePixelRatio : 1,
+          1.5
+        )}
+        camera={{ position: [10, 15, 25], fov: isMobile ? 55 : 45 }}
       >
-
-        
-      
-
         <Lights />
 
-        {/* <OrbitControls />
-        <axesHelper args={[40]} /> 
-        <InitialCameraArrow /> */}
+        {/* <OrbitControls /> */}
+        {/* <axesHelper args={[40]} /> */}
+        {/* <InitialCameraArrow /> */}
+        {/* <VideoTest /> */}
+        {/* <VideoPanels /> */}
 
-        <CameraRig 
-        
-        onUnlockDrag={setDragEnabled} 
-        
-        />
+        <CameraRig onUnlockDrag={setDragEnabled} />
 
         {/* Back curved wall */}
         <mesh position={[0, 0, -10]}>
@@ -238,43 +252,36 @@ export default function Scene() {
         </mesh>
 
         {/* Floor */}
-        {/* <mesh
-          receiveShadow
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, -1.55, 0]}
-        >
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.55, 0]}>
           <planeGeometry args={[150, 150]} />
-          <meshStandardMaterial
-            color="#BD97C3"
-            roughness={0.8}
-            metalness={0.6}
-          />
-        </mesh> */}
-        <mesh
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[0, -1.55, 0]}
-        >
-          <planeGeometry args={[150, 150]} />
-          <MeshReflectorMaterial
-            blur={[300, 100]}        // BD97C3 9A50B9 B37CCB reflection softness B37CCB fa8072 
-            resolution={1024}
-            mixBlur={0.7}
-            mixStrength={3}
-            roughness={0.7}
-            metalness={0.5}
-            color="#B37CCB"
-          />
+          {isMobile ? (
+            <meshStandardMaterial
+              color="#B37CCB"
+              roughness={0.8}
+              metalness={0.5}
+            />
+          ) : (
+            <MeshReflectorMaterial
+              blur={[300, 100]}
+              resolution={1024}
+              mixBlur={0.7}
+              mixStrength={3}
+              roughness={0.7}
+              metalness={0.5}
+              color="#B37CCB"
+            />
+          )}
         </mesh>
 
-        
-
-
-        
-
         {/* Main Cylinder */}
-        <Cylinder 
-        dragEnabled={dragEnabled} />
+        <Cylinder
+          dragEnabled={dragEnabled}
+          onActivePanelChange={setActivePanel}
+        />
       </Canvas>
+
+      {/* Panel overlay — visible only at scroll end (drag stage) */}
+      <PanelOverlay activePanel={activePanel} visible={dragEnabled} />
     </div>
   )
 }

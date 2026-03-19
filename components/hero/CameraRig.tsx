@@ -7,6 +7,7 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { MotionPathPlugin } from "gsap/MotionPathPlugin"
 import { ScrollToPlugin } from "gsap/ScrollToPlugin"
+import { scrollVelocity } from "@/lib/scrollVelocity" 
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, ScrollToPlugin)
 
@@ -14,28 +15,49 @@ type Props = {
   onUnlockDrag?: (v: boolean) => void
 }
 
-// Stop 0 = start (progress 0)
-// Stop 1 = mid   (progress 0.55)  ← camera pauses, text changes
-// Stop 2 = end   (progress 1)     ← drag unlocked
 const STOPS        = [0, 0.55, 1]
 const TOTAL_SCROLL = 3000
+
+// How much scroll speed converts to rotation speed.
+// Negative = anticlockwise when scrolling down.
+const SCROLL_TO_ROTATION = 0.0017
 
 export default function CameraRig({ onUnlockDrag }: Props) {
   const { camera } = useThree()
 
   const lookTarget    = useRef(new THREE.Vector3(5, 0, 0))
-  const committedStop = useRef(0)   // which stop we are AT (only updates after scroll lands)
+  const committedStop = useRef(0)
   const isNavigating  = useRef(false)
   const stRef         = useRef<ScrollTrigger | null>(null)
 
+  // Track raw scroll position each frame to compute velocity
+  const lastScrollY   = useRef(0)
+  const scrollSpeed   = useRef(0)
+
   useFrame(() => {
     camera.lookAt(lookTarget.current)
+
+    // Compute scroll delta this frame
+    const currentY = window.scrollY
+    const delta    = currentY - lastScrollY.current
+    lastScrollY.current = currentY
+
+    // Smooth the speed with a small lerp to avoid jitter
+    scrollSpeed.current += (delta - scrollSpeed.current) * 0.25
+
+    // Write to shared ref — Cylinder reads this every frame
+    // Only rotate during scroll phase (drag not yet unlocked)
+    // Once drag is enabled the user controls rotation directly
+    if (!scrollVelocity.locked) {
+      scrollVelocity.value = scrollSpeed.current * SCROLL_TO_ROTATION
+    }
   })
 
   useEffect(() => {
     const isMobile = window.innerWidth < 768
+    lastScrollY.current = window.scrollY
 
-    // ── Paths (your originals, untouched) ──────────────────────────────────
+    // ── Paths ──────────────────────────────────────────────────────────────
     const desktopCameraPath = [
       { x: 5,  y: 20, z: 10  },
       { x: 6,  y: 4,  z: 12  },
@@ -77,16 +99,13 @@ export default function CameraRig({ onUnlockDrag }: Props) {
       const left  = document.querySelector(".nav-arrow-left")  as HTMLElement | null
       const right = document.querySelector(".nav-arrow-right") as HTMLElement | null
       if (!left || !right) return
-      // Dim the button that has nowhere to go; keep pointer-events ALWAYS auto
-      left.style.opacity        = stop === 0                  ? "0.25" : "1"
-      right.style.opacity       = stop === STOPS.length - 1  ? "0.25" : "1"
+      left.style.opacity        = stop === 0                 ? "0.25" : "1"
+      right.style.opacity       = stop === STOPS.length - 1 ? "0.25" : "1"
       left.style.pointerEvents  = "auto"
       right.style.pointerEvents = "auto"
     }
 
     // ── Navigate ────────────────────────────────────────────────────────────
-    // Uses st.start (the absolute scroll px where the pin begins) so the
-    // target pixel is always correct regardless of current scroll position.
     function navigate(direction: 1 | -1) {
       if (isNavigating.current) return
 
@@ -98,13 +117,10 @@ export default function CameraRig({ onUnlockDrag }: Props) {
 
       isNavigating.current = true
 
-      // st.start = absolute scroll pixel where ScrollTrigger pin begins
       const targetScroll = st.start + STOPS[next] * TOTAL_SCROLL
 
       console.log(
-        `[CameraRig] navigate direction:${direction} ` +
-        `from stop ${committedStop.current} → ${next} | ` +
-        `st.start:${st.start} target:${targetScroll}`
+        `[CameraRig] navigate ${committedStop.current} → ${next} | target: ${targetScroll}`
       )
 
       gsap.killTweensOf(window)
@@ -117,7 +133,6 @@ export default function CameraRig({ onUnlockDrag }: Props) {
           committedStop.current = next
           isNavigating.current  = false
           updateArrowStates()
-          console.log(`[CameraRig] arrived at stop ${next}`)
         },
       })
     }
@@ -133,9 +148,14 @@ export default function CameraRig({ onUnlockDrag }: Props) {
         onUpdate: (self) => {
           stRef.current = self
 
-          if (onUnlockDrag) onUnlockDrag(self.progress > 0.98)
+          if (onUnlockDrag) {
+            const unlocked = self.progress > 0.98
+            onUnlockDrag(unlocked)
+            // Lock scroll-driven rotation once drag takes over
+            scrollVelocity.locked = unlocked
+            if (unlocked) scrollVelocity.value = 0
+          }
 
-          // Sync committedStop from free-scroll position (not during programmatic nav)
           if (!isNavigating.current) {
             const prev = committedStop.current
             if      (self.progress < 0.28) committedStop.current = 0
@@ -147,31 +167,29 @@ export default function CameraRig({ onUnlockDrag }: Props) {
       },
     })
 
-    // Camera position
     tl.to(camera.position, {
       motionPath: { path: cameraPath, curviness: 1.5 },
       ease: "none",
       duration: 3,
     })
 
-    // LookAt (parallel)
     tl.to(lookTarget.current, {
       motionPath: { path: lookPath, curviness: 1.5 },
       ease: "none",
       duration: 3,
     }, "<")
 
-    // Text transitions (your original timings)
-    tl.to(".text-start",  { opacity: 0, duration: 0.6 }, 0.8)
+    // Text + scroll indicator fade together at progress ~0.27
+    tl.to([".text-start", ".scroll-indicator"], { opacity: 0, duration: 0.6 }, 0.8)
     tl.fromTo(".text-stop",  { opacity: 0 }, { opacity: 1, duration: 0.6 }, 1)
     tl.to(".text-stop",   { opacity: 0, duration: 0.6 }, 2)
     tl.fromTo(".text-end", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 2.2)
 
-    // ── Buttons (deferred 300ms so React has painted HeroSection) ──────────
+    // ── Buttons ─────────────────────────────────────────────────────────────
     let leftEl:  HTMLElement | null = null
     let rightEl: HTMLElement | null = null
 
-    const onLeft  = () => { console.log("[btn] LEFT"); navigate(-1) }
+    const onLeft  = () => { console.log("[btn] LEFT");  navigate(-1) }
     const onRight = () => { console.log("[btn] RIGHT"); navigate(+1) }
 
     const btnTimer = setTimeout(() => {
@@ -180,10 +198,9 @@ export default function CameraRig({ onUnlockDrag }: Props) {
       leftEl?.addEventListener("click",  onLeft)
       rightEl?.addEventListener("click", onRight)
       updateArrowStates()
-      console.log("[CameraRig] buttons wired — left:", !!leftEl, "right:", !!rightEl)
     }, 300)
 
-    // ── Keyboard → clicks the DOM buttons so behaviour is identical ────────
+    // ── Keyboard ────────────────────────────────────────────────────────────
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === "ArrowDown") {
         e.preventDefault()
@@ -202,6 +219,8 @@ export default function CameraRig({ onUnlockDrag }: Props) {
       window.removeEventListener("keydown", onKey)
       leftEl?.removeEventListener("click",  onLeft)
       rightEl?.removeEventListener("click", onRight)
+      scrollVelocity.value  = 0
+      scrollVelocity.locked = false
     }
   }, [camera, onUnlockDrag])
 

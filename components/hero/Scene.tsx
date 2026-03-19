@@ -166,6 +166,7 @@ function VideoPanels() {
   )
 }
 
+
 // ── Dynamic overlay — changes with active cylinder panel ────────────────────
 type OverlayProps = {
   activePanel: number
@@ -176,45 +177,82 @@ function PanelOverlay({ activePanel, visible }: OverlayProps) {
   const panel = PANEL_CONTENT[activePanel] ?? PANEL_CONTENT[0]
 
   return (
-    <div
-      className={`
-        text-end absolute transition-opacity duration-500
-        md:left-10 md:bottom-[14%] md:w-[38%]
-        left-0 bottom-[10%] w-full px-6
-        ${visible ? "opacity-100" : "opacity-0"}
-      `}
-      style={{ pointerEvents: visible ? "auto" : "none" }}
-    >
-      <p
-        className="text-white font-bold leading-[1.05] mb-5"
-        style={{ fontSize: "clamp(1.5rem, 4vw, 3.4rem)" }}
+    <>
+      {/* ── Desktop overlay — bottom left ── */}
+      <div
+        className={`
+          text-end absolute transition-opacity duration-500
+          hidden md:block
+          left-10 bottom-[14%] w-[38%]
+          ${visible ? "opacity-100" : "opacity-0"}
+        `}
+        style={{ pointerEvents: visible ? "auto" : "none" }}
       >
-        {panel.title}
-      </p>
-      <p className="text-white/70 font-light leading-relaxed mb-5 text-[0.9rem] md:text-[1rem]">
-        {panel.description}
-      </p>
-      <div className="w-10 h-[2px] mb-4" style={{ background: panel.accent }} />
-      <div className="flex items-center gap-3">
-        <span
-          className="tracking-wide text-[0.8rem] md:text-[0.9rem] font-light"
-          style={{ color: panel.accent }}
+        <p
+          className="text-white font-bold leading-[1.05] mb-5"
+          style={{ fontSize: "clamp(1.5rem, 4vw, 3.4rem)" }}
         >
-          {panel.cta}
-        </span>
-        <span style={{ color: panel.accent }}>→</span>
+          {panel.title}
+        </p>
+        <p className="text-white/70 font-light leading-relaxed mb-5 text-[1rem]">
+          {panel.description}
+        </p>
+        <div className="h-[2px] mb-4" style={{ background: panel.accent, width: "40px" }} />
+        <div className="flex items-center gap-3">
+          <span className="tracking-wide text-[0.9rem] font-light" style={{ color: panel.accent }}>
+            {panel.cta}
+          </span>
+          <span style={{ color: panel.accent }}>→</span>
+        </div>
       </div>
-    </div>
+
+      {/* ── Mobile overlay — split: title above cylinder, cta below ── */}
+      {/* Above cylinder: top area (black space in the screenshot) */}
+      <div
+        className={`
+          text-end absolute transition-opacity duration-500
+          md:hidden
+          left-0 top-[12%] w-full px-5 text-center
+          ${visible ? "opacity-100" : "opacity-0"}
+        `}
+        style={{ pointerEvents: "none" }}
+      >
+        <p className="text-white font-bold leading-tight text-[1.6rem] mb-1">
+          {panel.title}
+        </p>
+        <p className="text-white/60 font-light text-[0.75rem] leading-relaxed">
+          {panel.description}
+        </p>
+      </div>
+
+      {/* Below cylinder: CTA at bottom */}
+      <div
+        className={`
+          text-end absolute transition-opacity duration-500
+          md:hidden
+          left-0 bottom-[6%] w-full px-5
+          flex flex-col items-center gap-2
+          ${visible ? "opacity-100" : "opacity-0"}
+        `}
+        style={{ pointerEvents: visible ? "auto" : "none" }}
+      >
+        <div className="h-[2px]" style={{ background: panel.accent, width: "32px" }} />
+        <div className="flex items-center gap-2">
+          <span
+            className="tracking-wide text-[0.78rem] font-light"
+            style={{ color: panel.accent }}
+          >
+            {panel.cta}
+          </span>
+          <span style={{ color: panel.accent }}>→</span>
+        </div>
+      </div>
+    </>
   )
 }
 
 // ── Scene ────────────────────────────────────────────────────────────────────
-type SceneProps = {
-  videoUrls?: string[]
-  videosReady?: boolean
-}
-
-export default function Scene({ videoUrls = [], videosReady = false }: SceneProps) {
+export default function Scene() {
   const [dragEnabled, setDragEnabled] = useState(false)
   const [activePanel, setActivePanel] = useState(0)
 
@@ -225,10 +263,7 @@ export default function Scene({ videoUrls = [], videosReady = false }: SceneProp
     <div className="absolute inset-0">
       <Canvas
         shadows
-        dpr={Math.min(
-          typeof window !== "undefined" ? window.devicePixelRatio : 1,
-          1.5
-        )}
+        dpr={Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 1.5)}
         camera={{ position: [10, 15, 25], fov: isMobile ? 55 : 45 }}
       >
         <Lights />
@@ -240,6 +275,7 @@ export default function Scene({ videoUrls = [], videosReady = false }: SceneProp
         {/* <VideoPanels /> */}
 
         <CameraRig onUnlockDrag={setDragEnabled} />
+
 
         {/* Back curved wall */}
         <mesh position={[0, 0, -10]}>

@@ -1,9 +1,6 @@
+import ContentfluxPage from "@/components/contentflux/ContentfluxPage";
+import "./contentflux.css";
+
 export default function Page() {
-  return (
-    <div className="h-screen w-full bg-black flex items-center justify-center">
-      <h1 className="text-white text-4xl md:text-6xl font-bold tracking-wide">
-        contentflux
-      </h1>
-    </div>
-  );
+  return <ContentfluxPage />;
 }

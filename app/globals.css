@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,57 +12,82 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ── Hero section ─────────────────────────────────────────────────────────── */
 .hero-section {
   position: relative;
   overflow: hidden;
 }
 
-.overlay-wrapper {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 10%;
-  pointer-events: none;
-  z-index: 10;
+/* ── Hero text animations (moved from HeroSection.tsx <style> tag) ──────── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.overlay-content {
-  width: 38%;
-  color: rgba(255, 255, 255, 0.9);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 26px;
-  line-height: 1.7;
-  letter-spacing: 0.2px;
+.anim-fade-up { animation: fadeSlideUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.anim-fade    { animation: fadeIn 0.7s ease both; }
+.anim-d1 { animation-delay: 0.05s; }
+.anim-d2 { animation-delay: 0.2s; }
+.anim-d3 { animation-delay: 0.32s; }
+.anim-d4 { animation-delay: 0.48s; }
+
+/* ── Scroll indicator dot ─────────────────────────────────────────────────── */
+@keyframes scrollDot {
+  0%   { top: 0;    opacity: 0.8; }
+  80%  { top: 100%; opacity: 0;   }
+  100% { top: 0;    opacity: 0;   }
+}
+.scroll-dot {
+  animation: scrollDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.main-text {
-  margin-bottom: 40px;
-  font-weight: 400;
+/* ── Gradient shift (for any gradient-animated elements) ─────────────────── */
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.link {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+/* ── Loading screen spinner ───────────────────────────────────────────────── */
+@keyframes spin-tick {
+  to { transform: rotate(360deg); }
+}
+@keyframes fade-up-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.ls-spinner {
+  animation: spin-tick 1.2s steps(12, end) infinite;
+}
+.ls-word-1 {
+  opacity: 0;
+  animation: fade-up-in 0.7s cubic-bezier(0.22,1,0.36,1) 0.2s forwards;
+}
+.ls-word-2 {
+  opacity: 0;
+  animation: fade-up-in 0.7s cubic-bezier(0.22,1,0.36,1) 0.4s forwards;
 }
 
-.cta {
-  font-size: 22px;
-  margin-top: 30px;
-  text-decoration: underline;
+/* ── Neon register button base (color overridden per-panel via useEffect) ── */
+.neon-btn {
+  border: 0.12em solid rgba(255,255,255,0.5);
+  color: white;
+  background-color: rgba(255,255,255,0.08);
+  border-radius: 0.6em;
+  font-weight: bold;
+  letter-spacing: 0.1em;
   cursor: pointer;
+  position: relative;
+  transition: all 0.3s;
+  display: inline-block;
 }

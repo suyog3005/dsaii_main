@@ -1,49 +1,55 @@
 "use client"
 
-import { Canvas, useThree } from "@react-three/fiber"
-import { OrbitControls, useHelper } from "@react-three/drei"
-import { useEffect, useRef, useState } from "react"
+import { Canvas, useThree, useFrame } from "@react-three/fiber"
+import { useHelper } from "@react-three/drei"
+import { useEffect, useRef, useState, useCallback } from "react"
 import * as THREE from "three"
 import { MeshReflectorMaterial } from "@react-three/drei"
+import { Text } from "@react-three/drei"
+import { OrbitControls } from "@react-three/drei"
 import Cylinder, { PANEL_CONTENT } from "./Cylinder"
 import CameraRig from "./CameraRig"
 import { useVideoTexture } from "../../hooks/useVideoTexture"
 
-// ── Lights (original, untouched) ────────────────────────────────────────────
+// ── Constants outside component — never recreated ────────────────────────────
+const ORIG_FLOOR = "#B37CCB"
+const ORIG_WALL  = "#AC79B4"
+
+// ── Lights ────────────────────────────────────────────────────────────────────
 function Lights() {
   const lightRef1 = useRef<THREE.SpotLight>(null!)
   const lightRef2 = useRef<THREE.SpotLight>(null!)
   const lightRef3 = useRef<THREE.SpotLight>(null!)
   const lightRef4 = useRef<THREE.SpotLight>(null!)
+  const lightRef5 = useRef<THREE.SpotLight>(null!)
+  const lightRef6 = useRef<THREE.SpotLight>(null!)
 
   const target1 = useRef<THREE.Object3D>(null!)
   const target2 = useRef<THREE.Object3D>(null!)
   const target3 = useRef<THREE.Object3D>(null!)
   const target4 = useRef<THREE.Object3D>(null!)
+  const target5 = useRef<THREE.Object3D>(null!)
+  const target6 = useRef<THREE.Object3D>(null!)
 
-  // Spotlight cone visible (debug helper)
+  // Uncomment to debug spotlight positions:
   // useHelper(lightRef1, THREE.SpotLightHelper, "cyan")
   // useHelper(lightRef2, THREE.SpotLightHelper, "cyan")
   // useHelper(lightRef3, THREE.SpotLightHelper, "yellow")
   // useHelper(lightRef4, THREE.SpotLightHelper, "green")
+  // useHelper(lightRef5, THREE.SpotLightHelper, "red")
+  // useHelper(lightRef6, THREE.SpotLightHelper, "red")
 
   useEffect(() => {
-    if (lightRef1.current && target1.current) {
-      lightRef1.current.target = target1.current
-      target1.current.updateMatrixWorld()
-    }
-    if (lightRef2.current && target2.current) {
-      lightRef2.current.target = target2.current
-      target2.current.updateMatrixWorld()
-    }
-    if (lightRef3.current && target3.current) {
-      lightRef3.current.target = target3.current
-      target3.current.updateMatrixWorld()
-    }
-    if (lightRef4.current && target4.current) {
-      lightRef4.current.target = target4.current
-      target4.current.updateMatrixWorld()
-    }
+    const pairs = [
+      [lightRef1, target1], [lightRef2, target2], [lightRef3, target3],
+      [lightRef4, target4], [lightRef5, target5], [lightRef6, target6],
+    ] as const
+    pairs.forEach(([l, t]) => {
+      if (l.current && t.current) {
+        l.current.target = t.current
+        t.current.updateMatrixWorld()
+      }
+    })
   }, [])
 
   return (
@@ -51,64 +57,42 @@ function Lights() {
       <ambientLight intensity={0.2} />
       <directionalLight position={[-10, 30, -5]} intensity={0.15} />
 
-      {/* Top Spotlight */}
-      <spotLight
-        ref={lightRef1}
-        position={[0, 8, 0]}
-        angle={0.6}
-        penumbra={0.6}
-        intensity={90}
-        distance={60}
-        decay={2}
-        castShadow
-        shadow-radius={8}
-      />
+      {/* Top Spotlight — castShadow kept */}
+      <spotLight ref={lightRef1} position={[0, 8, 0]}
+        angle={0.6} penumbra={0.6} intensity={90} distance={60} decay={2}
+        castShadow shadow-radius={8} />
       <object3D ref={target1} position={[0, 0, 0]} />
 
-      {/* Side Spotlight */}
-      <spotLight
-        ref={lightRef2}
-        position={[5, 15, 6]}
-        angle={0.7}
-        penumbra={0.4}
-        intensity={150}
-        distance={60}
-        decay={2}
-        castShadow
-        shadow-radius={8}
-      />
+      {/* Side Spotlight — castShadow kept */}
+      <spotLight ref={lightRef2} position={[5, 15, 6]}
+        angle={0.7} penumbra={0.4} intensity={150} distance={60} decay={2}
+        castShadow shadow-radius={8} />
       <object3D ref={target2} position={[0, 0, 0]} />
 
-      {/* Top right plane Spotlight */}
-      <spotLight
-        ref={lightRef3}
-        position={[27, 8, -12]}
-        angle={1.2}
-        penumbra={0.5}
-        intensity={90}
-        distance={80}
-        decay={2}
-        castShadow
-      />
+      {/* Top right plane — shadow removed */}
+      <spotLight ref={lightRef3} position={[27, 8, -12]}
+        angle={1.2} penumbra={0.5} intensity={90} distance={80} decay={2} />
       <object3D ref={target3} position={[27, 0, -12]} />
 
-      {/* Top left plane Spotlight */}
-      <spotLight
-        ref={lightRef4}
-        position={[-24, 6, -12]}
-        angle={1.2}
-        penumbra={0.5}
-        intensity={50}
-        distance={80}
-        decay={2}
-        castShadow
-      />
+      {/* Top right background — shadow removed */}
+      <spotLight ref={lightRef5} position={[18, 10, -14]}
+        angle={0.8} penumbra={0.6} intensity={150} distance={50} decay={1.5} />
+      <object3D ref={target5} position={[36, 10, -40]} />
+
+      {/* Top left background — shadow removed */}
+      <spotLight ref={lightRef6} position={[-18, 10, -14]}
+        angle={0.8} penumbra={0.6} intensity={150} distance={50} decay={1.5} />
+      <object3D ref={target6} position={[-36, 10, -40]} />
+
+      {/* Top left plane — shadow removed */}
+      <spotLight ref={lightRef4} position={[-24, 6, -12]}
+        angle={1.2} penumbra={0.5} intensity={50} distance={80} decay={2} />
       <object3D ref={target4} position={[-24, 0, -12]} />
     </>
   )
 }
 
-// ── Debug helper: single video plane (original) ─────────────────────────────
+// ── Debug helpers (kept, commented out) ──────────────────────────────────────
 function VideoTest() {
   const tex = useVideoTexture("/videos/v1.mp4")
   if (!tex) return null
@@ -120,7 +104,6 @@ function VideoTest() {
   )
 }
 
-// ── Debug helper: camera direction arrow (original) ─────────────────────────
 function InitialCameraArrow() {
   const { scene } = useThree()
   useEffect(() => {
@@ -134,29 +117,25 @@ function InitialCameraArrow() {
   return null
 }
 
-// ── Debug helper: flat video panels (original) ──────────────────────────────
 function VideoPanels() {
   const radius    = 5
   const height    = 6
   const total     = 4
   const angleStep = (Math.PI * 2) / total
-
-  const textures = [
+  const textures  = [
     useVideoTexture("/videos/v1.mp4"),
     useVideoTexture("/videos/v2.mp4"),
     useVideoTexture("/videos/v3.mp4"),
     useVideoTexture("/videos/v4.mp4"),
   ]
-
   return (
     <>
       {textures.map((tex, i) => {
         if (!tex) return null
         const angle = i * angleStep
-        const x     = Math.sin(angle) * radius
-        const z     = Math.cos(angle) * radius
         return (
-          <mesh key={i} position={[x, 0, z]} rotation={[0, angle, 0]}>
+          <mesh key={i} position={[Math.sin(angle) * radius, 0, Math.cos(angle) * radius]}
+                rotation={[0, angle, 0]}>
             <planeGeometry args={[4, height, 32, 1]} />
             <meshBasicMaterial map={tex} toneMapped={false} />
           </mesh>
@@ -166,11 +145,114 @@ function VideoPanels() {
   )
 }
 
+// ── Color lerper ──────────────────────────────────────────────────────────────
+// setFloorColor is throttled — only fires when hex string actually changes,
+// preventing a React re-render every frame during transitions.
+type ColorLerperProps = {
+  wallMatRef:    React.MutableRefObject<THREE.MeshStandardMaterial | null>
+  floorMatRef:   React.MutableRefObject<THREE.MeshStandardMaterial | null>
+  currentWall:   React.MutableRefObject<THREE.Color>
+  targetWall:    React.MutableRefObject<THREE.Color>
+  currentFloor:  React.MutableRefObject<THREE.Color>
+  targetFloor:   React.MutableRefObject<THREE.Color>
+  lerpSpeed:     React.MutableRefObject<number>
+  lerpMaxSpeed:  React.MutableRefObject<number>
+  lerpRunning:   React.MutableRefObject<boolean>
+  setFloorColor: (c: string) => void
+}
 
-// ── Dynamic overlay — changes with active cylinder panel ────────────────────
+function ColorLerper({
+  wallMatRef, floorMatRef, currentWall, targetWall,
+  currentFloor, targetFloor,
+  lerpSpeed, lerpMaxSpeed, lerpRunning,
+  setFloorColor,
+}: ColorLerperProps) {
+  // Track last emitted hex to avoid redundant setState calls
+  const prevHex = useRef("")
+
+  useFrame(() => {
+    if (!lerpRunning.current) return
+
+    lerpSpeed.current = Math.min(lerpSpeed.current + 0.0015, lerpMaxSpeed.current)
+    const a = lerpSpeed.current
+
+    // Wall — direct material mutation, no React re-render
+    const wall = wallMatRef.current
+    if (wall?.color) {
+      currentWall.current.lerp(targetWall.current, a)
+      wall.color.copy(currentWall.current)
+      wall.needsUpdate = true
+    }
+
+    // Floor — lerp the color object
+    currentFloor.current.lerp(targetFloor.current, a)
+
+    // Mutate mobile floor material directly (same as wall — no re-render needed)
+    const floor = floorMatRef.current
+    if (floor?.color) {
+      floor.color.copy(currentFloor.current)
+      floor.needsUpdate = true
+    }
+
+    // Also update floorColor state for desktop MeshReflectorMaterial
+    // (can't be mutated by ref — needs React re-render)
+    const hex = "#" + currentFloor.current.getHexString()
+    if (hex !== prevHex.current) {
+      prevHex.current = hex
+      setFloorColor(hex)
+    }
+
+    // Stop when close enough
+    const dw = Math.abs(currentWall.current.r - targetWall.current.r)
+             + Math.abs(currentWall.current.g - targetWall.current.g)
+             + Math.abs(currentWall.current.b - targetWall.current.b)
+    const df = Math.abs(currentFloor.current.r - targetFloor.current.r)
+             + Math.abs(currentFloor.current.g - targetFloor.current.g)
+             + Math.abs(currentFloor.current.b - targetFloor.current.b)
+
+    if (dw + df < 0.008) {
+      currentWall.current.copy(targetWall.current)
+      currentFloor.current.copy(targetFloor.current)
+      if (wall?.color) { wall.color.copy(targetWall.current); wall.needsUpdate = true }
+      const finalHex = "#" + targetFloor.current.getHexString()
+      if (finalHex !== prevHex.current) {
+        prevHex.current = finalHex
+        setFloorColor(finalHex)
+      }
+      lerpRunning.current = false
+      lerpSpeed.current   = 0
+    }
+  })
+  return null
+}
+
+
+// ── Register button ──────────────────────────────────────────────────────────
+// Fires a CustomEvent carrying the route. HeroSection listens, unmounts Scene,
+// then SceneGone (rendered in place of Scene) calls router.push in useEffect —
+// guaranteed to run only AFTER React has committed the Scene unmount to the DOM.
+function RegisterBtn({ route }: { route?: string }) {
+  const handleClick = () => {
+    window.dispatchEvent(
+      new CustomEvent("navigate-to", { detail: route ?? "/" })
+    )
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      className="px-6 py-2 border border-white text-white text-sm
+                 hover:bg-white hover:text-black transition duration-300"
+    >
+      Register Now
+    </button>
+  )
+}
+
+// ── Panel overlay ─────────────────────────────────────────────────────────────
 type OverlayProps = {
   activePanel: number
-  visible: boolean
+  visible:     boolean
 }
 
 function PanelOverlay({ activePanel, visible }: OverlayProps) {
@@ -178,86 +260,141 @@ function PanelOverlay({ activePanel, visible }: OverlayProps) {
 
   return (
     <>
-      {/* ── Desktop overlay — bottom left ── */}
+      {/* Desktop — bottom left */}
       <div
-        className={`
-          text-end absolute transition-opacity duration-500
-          hidden md:block
-          left-10 bottom-[14%] w-[38%]
-          ${visible ? "opacity-100" : "opacity-0"}
-        `}
+        className={`absolute transition-opacity duration-500
+          hidden md:block left-10 bottom-[14%] w-[25%]
+          ${visible ? "opacity-100" : "opacity-0"}`}
         style={{ pointerEvents: visible ? "auto" : "none" }}
       >
-        <p
-          className="text-white font-bold leading-[1.05] mb-5"
-          style={{ fontSize: "clamp(1.5rem, 4vw, 3.4rem)" }}
-        >
+        <p className="text-white font-bold leading-[1.05] mb-1"
+           style={{ fontSize: "clamp(1.5rem, 4vw, 3.4rem)" }}>
           {panel.title}
+        </p>
+        <p className="text-white/40 font-light tracking-widest uppercase mb-4 text-[0.75rem]">
+          {panel.subtitle}
         </p>
         <p className="text-white/70 font-light leading-relaxed mb-5 text-[1rem]">
           {panel.description}
         </p>
-        <div className="h-[2px] mb-4" style={{ background: panel.accent, width: "40px" }} />
+        {/* <div className="h-[2px] mb-4" style={{ background: panel.accent, width: "40px" }} />
         <div className="flex items-center gap-3">
           <span className="tracking-wide text-[0.9rem] font-light" style={{ color: panel.accent }}>
             {panel.cta}
           </span>
           <span style={{ color: panel.accent }}>→</span>
-        </div>
+        </div> */}
+        <RegisterBtn route={(panel as any).route} />
+
       </div>
 
-      {/* ── Mobile overlay — split: title above cylinder, cta below ── */}
-      {/* Above cylinder: top area (black space in the screenshot) */}
+      {/* ── Mobile: title block — top ── */}
       <div
-        className={`
-          text-end absolute transition-opacity duration-500
-          md:hidden
-          left-0 top-[12%] w-full px-5 text-center
-          ${visible ? "opacity-100" : "opacity-0"}
-        `}
+        className={`absolute transition-opacity duration-500
+          md:hidden left-0 top-[12%] w-full px-5 
+          ${visible ? "opacity-100" : "opacity-0"}`}
         style={{ pointerEvents: "none" }}
       >
-        <p className="text-white font-bold leading-tight text-[1.6rem] mb-1">
+        <p className="text-white font-bold leading-tight text-[1.9rem] mb-1">
           {panel.title}
         </p>
-        <p className="text-white/60 font-light text-[0.75rem] leading-relaxed">
+        <p className="text-white/40 font-light tracking-widest uppercase text-[0.6rem] mb-3">
+          {panel.subtitle}
+        </p>
+        {/* Top description — short tagline */}
+        <p className="text-white/70 font-light text-[0.9rem] leading-relaxed">
           {panel.description}
         </p>
+        
       </div>
 
-      {/* Below cylinder: CTA at bottom */}
+      {/* ── Mobile: bottom description + Register button ── */}
       <div
-        className={`
-          text-end absolute transition-opacity duration-500
-          md:hidden
-          left-0 bottom-[6%] w-full px-5
-          flex flex-col items-center gap-2
-          ${visible ? "opacity-100" : "opacity-0"}
-        `}
+        className={`absolute transition-opacity duration-500
+          md:hidden left-0 bottom-[14%]  w-full px-5 flex flex-col items-center gap-4
+          ${visible ? "opacity-100" : "opacity-0"}`}
         style={{ pointerEvents: visible ? "auto" : "none" }}
       >
-        <div className="h-[2px]" style={{ background: panel.accent, width: "32px" }} />
-        <div className="flex items-center gap-2">
-          <span
-            className="tracking-wide text-[0.78rem] font-light"
-            style={{ color: panel.accent }}
-          >
-            {panel.cta}
-          </span>
-          <span style={{ color: panel.accent }}>→</span>
-        </div>
+        {/* Bottom description — event-specific detail */}
+        <p className="text-white/60 font-light text-[0.9rem] leading-relaxed text-center">
+          Join us for an unforgettable experience. Compete, collaborate,
+          and push your limits at {panel.title}.
+</p>
+          
+        <RegisterBtn route={(panel as any).route} />
       </div>
+
     </>
   )
 }
 
-// ── Scene ────────────────────────────────────────────────────────────────────
-export default function Scene() {
+// ── Scene ─────────────────────────────────────────────────────────────────────
+type SceneProps = {
+  onAllReady?: () => void
+}
+
+export default function Scene({ onAllReady }: SceneProps) {
+  // Also dispatch a DOM event so HeroSection can listen regardless of
+  // React batching issues from inside the R3F Canvas context
+  useEffect(() => {
+    const handler = () => onAllReady?.()
+    window.addEventListener("videos-ready", handler)
+    return () => window.removeEventListener("videos-ready", handler)
+  }, [onAllReady])
   const [dragEnabled, setDragEnabled] = useState(false)
   const [activePanel, setActivePanel] = useState(0)
+  const [floorColor, setFloorColor]   = useState(ORIG_FLOOR)
 
-  const isMobile =
+  const wallMatRef   = useRef<THREE.MeshStandardMaterial | null>(null)
+  const floorMatRef  = useRef<THREE.MeshStandardMaterial | null>(null)
+  const currentFloor = useRef(new THREE.Color(ORIG_FLOOR))
+  const currentWall  = useRef(new THREE.Color(ORIG_WALL))
+  const targetFloor  = useRef(new THREE.Color(ORIG_FLOOR))
+  const targetWall   = useRef(new THREE.Color(ORIG_WALL))
+  const lerpSpeed    = useRef(0)
+  const lerpMaxSpeed = useRef(0.035)
+  const lerpRunning  = useRef(false)
+  const delayRef     = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // isMobile computed once on mount — stable, no re-render cost
+  const isMobile = useRef(
     typeof window !== "undefined" && window.innerWidth < 768
+  ).current
+
+  // Drag state transition — 1s delay then slow lerp
+  useEffect(() => {
+    if (delayRef.current) clearTimeout(delayRef.current)
+    delayRef.current = setTimeout(() => {
+      if (dragEnabled) {
+        const p = PANEL_CONTENT[activePanel] ?? PANEL_CONTENT[0]
+        targetFloor.current.set(p.floorColor.trim())
+        targetWall.current.set(p.wallColor.trim())
+      } else {
+        targetFloor.current.set(ORIG_FLOOR)
+        targetWall.current.set(ORIG_WALL)
+      }
+      lerpSpeed.current    = 0
+      lerpMaxSpeed.current = 0.035
+      lerpRunning.current  = true
+    }, 1000)
+    return () => { if (delayRef.current) clearTimeout(delayRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dragEnabled])
+
+  // Stable callback — recreated only when dragEnabled changes
+  const handlePanelChange = useCallback((idx: number) => {
+    setActivePanel(idx)
+    // Broadcast to HeroSection so it can update the text-end panel content
+    window.dispatchEvent(new CustomEvent("panel-change", { detail: idx }))
+    const p = PANEL_CONTENT[idx]
+    if (p && dragEnabled) {
+      targetFloor.current.set(p.floorColor.trim())
+      targetWall.current.set(p.wallColor.trim())
+      lerpSpeed.current    = 0
+      lerpMaxSpeed.current = 0.06   // fast for panel drag switch
+      lerpRunning.current  = true
+    }
+  }, [dragEnabled])
 
   return (
     <div className="absolute inset-0">
@@ -268,21 +405,35 @@ export default function Scene() {
       >
         <Lights />
 
-        {/* <OrbitControls /> */}
-        {/* <axesHelper args={[40]} /> */}
-        {/* <InitialCameraArrow /> */}
+        {/* <OrbitControls />
+        <axesHelper args={[40]} />
+        <InitialCameraArrow /> */}
         {/* <VideoTest /> */}
         {/* <VideoPanels /> */}
 
         <CameraRig onUnlockDrag={setDragEnabled} />
 
+        <ColorLerper
+          wallMatRef={wallMatRef}
+          floorMatRef={floorMatRef}
+          currentWall={currentWall}
+          targetWall={targetWall}
+          currentFloor={currentFloor}
+          targetFloor={targetFloor}
+          lerpSpeed={lerpSpeed}
+          lerpMaxSpeed={lerpMaxSpeed}
+          lerpRunning={lerpRunning}
+          setFloorColor={setFloorColor}
+        />
 
         {/* Back curved wall */}
         <mesh position={[0, 0, -10]}>
-          <cylinderGeometry args={[40, 40, 50, 64, 1, true]} />
+          <cylinderGeometry args={[40, 40, 80, 64, 1, true]} />
           <meshStandardMaterial
-            color="#623B68"
+            ref={wallMatRef}
+            color={ORIG_WALL}
             roughness={0.6}
+            metalness={0.5}
             side={THREE.BackSide}
           />
         </mesh>
@@ -292,31 +443,32 @@ export default function Scene() {
           <planeGeometry args={[150, 150]} />
           {isMobile ? (
             <meshStandardMaterial
-              color="#B37CCB"
+              ref={floorMatRef}
+              color={floorColor}
               roughness={0.8}
               metalness={0.5}
             />
           ) : (
             <MeshReflectorMaterial
-              blur={[300, 100]}
-              resolution={1024}
+              blur={[100, 50]}
+              resolution={512}
               mixBlur={0.7}
               mixStrength={3}
               roughness={0.7}
               metalness={0.5}
-              color="#B37CCB"
+              color={floorColor}
             />
           )}
         </mesh>
 
-        {/* Main Cylinder */}
         <Cylinder
           dragEnabled={dragEnabled}
-          onActivePanelChange={setActivePanel}
+          onActivePanelChange={handlePanelChange}
+          onAllReady={onAllReady}
         />
+
       </Canvas>
 
-      {/* Panel overlay — visible only at scroll end (drag stage) */}
       <PanelOverlay activePanel={activePanel} visible={dragEnabled} />
     </div>
   )

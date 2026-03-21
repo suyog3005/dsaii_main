@@ -1,43 +1,83 @@
 "use client"
-
+import React from "react"
+import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
+import { useState, useEffect } from "react"
 import Navbar from "./Navbar"
+import LoadingScreen from "./LoadingScreen"
+import { PANEL_CONTENT } from "./Cylinder"
 
-const Scene = dynamic(() => import("./Scene"), { ssr: false })
+const Scene = dynamic(
+  () => import("./Scene") as any,
+  { ssr: false }
+) as React.ComponentType<{ onAllReady?: () => void }>
+
+// ── Sentinel: renders null, but navigates in useEffect (after Scene commits) ──
+function SceneGone({ route }: { route: string }) {
+  const router = useRouter()
+  useEffect(() => {
+    // Give React/Fiber enough time to fully remove the Canvas from the DOM 
+    // before Next.js triggers the route change, avoiding removeChild errors.
+    const t = setTimeout(() => {
+      router.push(route)
+    }, 100)
+    return () => clearTimeout(t)
+  }, [route, router])
+  return null
+}
 
 export default function HeroSection() {
+  const [loaded, setLoaded]           = useState(false)
+  const [pendingRoute, setPendingRoute] = useState<string | null>(null)
+  const [activePanel, setActivePanel]  = useState(0)
+
+  // Listen for DOM event from Cylinder
+  useEffect(() => {
+    const handler = () => setLoaded(true)
+    window.addEventListener("videos-ready", handler)
+    return () => window.removeEventListener("videos-ready", handler)
+  }, [])
+
+  // Listen for navigate-to event from RegisterBtn
+  // Storing route triggers Scene unmount; SceneGone then calls router.push
+  // after the React DOM commit — no setTimeout race condition.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const route = (e as CustomEvent<string>).detail
+      setPendingRoute(route)
+    }
+    window.addEventListener("navigate-to", handler)
+    return () => window.removeEventListener("navigate-to", handler)
+  }, [])
+
+  // Track which panel is front-and-center from Scene's rotation
+  useEffect(() => {
+    const handler = (e: Event) => {
+      setActivePanel((e as CustomEvent<number>).detail)
+    }
+    window.addEventListener("panel-change", handler)
+    return () => window.removeEventListener("panel-change", handler)
+  }, [])
+
+  const panel = PANEL_CONTENT[activePanel] ?? PANEL_CONTENT[0]
+
   return (
     <>
-      <Navbar />
-      <style>{`
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(28px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to   { opacity: 1; }
-        }
-        .anim-fade-up { animation: fadeSlideUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) both; }
-        .anim-fade    { animation: fadeIn 0.7s ease both; }
-        .anim-d1 { animation-delay: 0.05s; }
-        .anim-d2 { animation-delay: 0.2s; }
-        .anim-d3 { animation-delay: 0.32s; }
-        .anim-d4 { animation-delay: 0.48s; }
+      {/* Loading screen stays visible until all 5 videos fire canplay */}
+      <LoadingScreen ready={loaded} minDuration={1000} />
 
-        @keyframes scrollDot {
-          0%   { top: 0;    opacity: 0.8; }
-          80%  { top: 100%; opacity: 0;   }
-          100% { top: 0;    opacity: 0;   }
-        }
-        .scroll-dot {
-          animation: scrollDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-      `}</style>
+      <Navbar />
 
       <section className="hero-section h-screen w-full bg-black relative overflow-hidden">
-        <Scene />
 
+        {/* Scene lives only while no navigation is pending.
+            Once pendingRoute is set, SceneGone mounts (Scene is gone from DOM)
+            and useEffect inside SceneGone calls router.push. */}
+        {pendingRoute
+          ? <SceneGone route={pendingRoute} />
+          : <Scene onAllReady={() => setLoaded(true)} />}
+
+        
         <div className="overlay-wrapper pointer-events-none absolute inset-0 z-10">
 
           {/* ── Navigation arrows — below navbar ── */}
@@ -72,11 +112,11 @@ export default function HeroSection() {
           {/* ════════════════════════════════════════════════════════════════
               STAGE 1 — text-start
               Desktop: right half from 45%, top 18%
-              Mobile:  bottom of screen, full width
+              Mobile:  right half from 44%, bottom 6%
           ════════════════════════════════════════════════════════════════ */}
           <div className="text-start absolute
             md:left-[45%] md:top-[18%] md:w-[43%] md:pr-10 md:bottom-auto
-            left-0 bottom-[6%] w-full px-5
+            left-[44%] bottom-[36%] w-[56%] pr-3
           ">
             {/* ── Desktop text ── */}
             <div className="hidden md:block">
@@ -112,42 +152,43 @@ export default function HeroSection() {
             </div>
 
             {/* ── Mobile text — shorter ── */}
-             {/* Mobile */}
-              <div className="md:hidden">
-                <h1 className="anim-fade-up anim-d1
-                              text-white font-black leading-[0.9] tracking-tight
-                              text-[2.2rem] mb-0">
-                  DSAII
-                </h1>
-                <p className="anim-fade-up anim-d2
-                              text-white font-bold leading-tight
-                              text-[0.8rem] mt-1 mb-2">
-                  Technovation 4.0
-                </p>
-                <div className="anim-fade anim-d2 h-[1px] bg-white/60 mb-3 w-[80px]" />
-                <p className="anim-fade-up anim-d3
-                              text-white/85 font-light leading-[1.5]
-                              text-[0.75rem] mb-4">
-                  We craft immersive digital events that reimagine how the world
-                  gathers, connects and experiences together.
-                </p>
-                <a href="#"
-                  className="anim-fade-up anim-d4 pointer-events-auto text-white font-light
-                              border-b border-white pb-1 inline-block hover:opacity-70
-                              transition-opacity text-[0.75rem]">
-                  Contact us here!
-                </a>
-              </div>
+            <div className="md:hidden bottom-[40%]" >
+              <h1 className="anim-fade-up anim-d1
+                             text-white font-black leading-[0.9] tracking-tight
+                             text-[2.8rem] mb-0">
+                DSAII
+              </h1>
+              <p className="anim-fade-up anim-d2
+                            text-white font-bold leading-tight
+                            text-[0.85rem] mt-1 mb-2">
+                Technovation 4.0
+              </p>
+              <div className="anim-fade anim-d2 h-[1px] bg-white/60 mb-3"
+                   style={{ width: "100px" }} />
+              <p className="anim-fade-up anim-d3
+                            text-white/85 font-light leading-[1.6]
+                            text-[1.0rem] mb-5">
+                We craft immersive digital events that reimagine how the world
+                gathers, connects and experiences together. We craft immersive digital events that reimagine how the world
+                gathers, connects and experiences together.
+              </p>
+              <a href="#"
+                 className="anim-fade-up anim-d4 pointer-events-auto text-white font-light
+                            border-b border-white pb-1 inline-block hover:opacity-70
+                            transition-opacity text-[0.85rem]">
+                Contact us here!
+              </a>
+            </div>
           </div>
 
           {/* ════════════════════════════════════════════════════════════════
               STAGE 2 — text-stop
               Desktop: right half from 54%, top 18%
-              Mobile:  bottom of screen, full width
+              Mobile:  right half from 44%, bottom 6%
           ════════════════════════════════════════════════════════════════ */}
           <div className="text-stop opacity-0 absolute
             md:left-[54%] md:top-[18%] md:w-[43%] md:pr-10 md:bottom-auto
-            left-0 bottom-[6%] w-full px-5
+            left-[44%] bottom-[50%] w-[56%] pr-3
           ">
             {/* ── Desktop text ── */}
             <div className="hidden md:block">
@@ -168,36 +209,29 @@ export default function HeroSection() {
             </div>
 
             {/* ── Mobile text — shorter ── */}
-            {/* Mobile */}
             <div className="md:hidden">
               <h2 className="text-white font-black leading-[0.9] tracking-tight
-                            text-[1.8rem] mb-3">
+                             text-[2rem] mb-3">
                 MIRAI <span className="font-black">未来</span>
               </h2>
-              <div className="h-[1px] bg-white/60 mb-3 w-[70px]" />
-              <p className="text-white/85 font-light leading-[1.5] text-[0.75rem]">
+              <div className="h-[1px] bg-white/60 mb-3" style={{ width: "80px" }} />
+              <p className="text-white/85 font-light leading-[1.6] text-[0.82rem]">
                 The future of events is here — immersive, digital, and
+                built for the next generation of audiences.
+                vThe future of events is here — immersive, digital, and
                 built for the next generation of audiences.
               </p>
             </div>
           </div>
 
-          {/* ════════════════════════════════════════════════════════════════
-              STAGE 3 — text-end
-              PanelOverlay in Scene.tsx handles dynamic content.
-              This div is the GSAP fade-in anchor only.
-          ════════════════════════════════════════════════════════════════ */}
-          <div className="text-end opacity-0 absolute
-            md:left-[50%] md:bottom-[14%] md:w-[45%] md:pr-12
-            left-0 bottom-[10%] w-full px-5
-          " />
+
 
           {/* ── Bottom label — desktop only ── */}
           <div className="text-end opacity-0 absolute left-6 bottom-6
                           hidden md:flex items-center gap-3">
             <span className="text-white/40 text-[0.7rem] tracking-widest font-mono">01</span>
             <span className="text-white/40 text-[0.7rem] tracking-widest uppercase">
-              Tackling Online Education
+              2026 DSAII Technovation 4.0
             </span>
           </div>
 

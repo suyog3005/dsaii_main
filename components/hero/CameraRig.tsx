@@ -7,7 +7,7 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { MotionPathPlugin } from "gsap/MotionPathPlugin"
 import { ScrollToPlugin } from "gsap/ScrollToPlugin"
-import { scrollVelocity } from "@/lib/scrollVelocity" 
+import { scrollVelocity } from "@/lib/scrollVelocity"
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin, ScrollToPlugin)
 
@@ -20,7 +20,7 @@ const TOTAL_SCROLL = 3000
 
 // How much scroll speed converts to rotation speed.
 // Negative = anticlockwise when scrolling down.
-const SCROLL_TO_ROTATION = 0.0017
+const SCROLL_TO_ROTATION = -0.003
 
 export default function CameraRig({ onUnlockDrag }: Props) {
   const { camera } = useThree()
@@ -138,6 +138,9 @@ export default function CameraRig({ onUnlockDrag }: Props) {
     }
 
     // ── Timeline ────────────────────────────────────────────────────────────
+    // Track whether we've already disabled the pin so we don't repeat
+    let pinDisabled = false
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: ".hero-section",
@@ -145,15 +148,32 @@ export default function CameraRig({ onUnlockDrag }: Props) {
         end: `+=${TOTAL_SCROLL}`,
         scrub: 1,
         pin: true,
+        anticipatePin: 1,
         onUpdate: (self) => {
           stRef.current = self
 
           if (onUnlockDrag) {
             const unlocked = self.progress > 0.98
             onUnlockDrag(unlocked)
-            // Lock scroll-driven rotation once drag takes over
             scrollVelocity.locked = unlocked
             if (unlocked) scrollVelocity.value = 0
+
+            // Once drag is unlocked — release body scroll so mobile
+            // top-half touch can scroll the page freely
+            if (unlocked && !pinDisabled) {
+              pinDisabled = true
+              setTimeout(() => {
+                // Release any overflow locks set by GSAP pin
+                document.body.style.overflow        = ""
+                document.body.style.overflowY       = ""
+                document.documentElement.style.overflow  = ""
+                document.documentElement.style.overflowY = ""
+              }, 100)
+            }
+
+            if (!unlocked && pinDisabled) {
+              pinDisabled = false
+            }
           }
 
           if (!isNavigating.current) {
@@ -183,7 +203,16 @@ export default function CameraRig({ onUnlockDrag }: Props) {
     tl.to([".text-start", ".scroll-indicator"], { opacity: 0, duration: 0.6 }, 0.8)
     tl.fromTo(".text-stop",  { opacity: 0 }, { opacity: 1, duration: 0.6 }, 1)
     tl.to(".text-stop",   { opacity: 0, duration: 0.6 }, 2)
-    tl.fromTo(".text-end", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 2.2)
+    tl.fromTo(".text-end", { opacity: 0 }, {
+      opacity: 1,
+      duration: 0.6,
+      onStart: () => {
+        // Enable pointer events so Register button becomes clickable
+        document.querySelectorAll<HTMLElement>(".text-end").forEach(el => {
+          el.style.pointerEvents = "auto"
+        })
+      },
+    }, 2.2)
 
     // ── Buttons ─────────────────────────────────────────────────────────────
     let leftEl:  HTMLElement | null = null

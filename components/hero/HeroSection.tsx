@@ -63,8 +63,8 @@ export default function HeroSection() {
 
   return (
     <>
-      {/* Loading screen stays visible until all 5 videos fire canplay */}
-      <LoadingScreen ready={loaded} minDuration={1000} />
+      {/* /* Loading screen stays visible until all 5 videos fire canplay */ }
+      {/* <LoadingScreen ready={loaded} minDuration={1000} /> */}
 
       <Navbar />
 

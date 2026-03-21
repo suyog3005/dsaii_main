@@ -1,7 +1,7 @@
 "use client"
 
 import { useThree, useFrame } from "@react-three/fiber"
-import { useEffect, useRef } from "react"
+import { useLayoutEffect, useRef } from "react"
 import * as THREE from "three"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -53,7 +53,7 @@ export default function CameraRig({ onUnlockDrag }: Props) {
     }
   })
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const isMobile = window.innerWidth < 768
     lastScrollY.current = window.scrollY
 
@@ -243,7 +243,10 @@ export default function CameraRig({ onUnlockDrag }: Props) {
     window.addEventListener("keydown", onKey)
 
     return () => {
+      // Revert pinning/wrappers before React unmounts DOM nodes.
+      tl.scrollTrigger?.kill(true)
       tl.kill()
+      gsap.killTweensOf(window)
       clearTimeout(btnTimer)
       window.removeEventListener("keydown", onKey)
       leftEl?.removeEventListener("click",  onLeft)

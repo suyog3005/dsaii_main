@@ -22,7 +22,7 @@ export function HeroSection({
         transition={{ delay: 0.6, duration: 1.9 }}
         style={{
           fontFamily: "'Cormorant Garamond',serif",
-          fontSize: "clamp(9px,1vw,12px)",
+          fontSize: "clamp(27px,3vw,36px)",
           fontStyle: "italic",
           fontWeight: 300,
           color: "rgba(198,180,148,.50)",

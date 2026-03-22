@@ -303,14 +303,17 @@ export default function Cylinder({ dragEnabled, onActivePanelChange, onAllReady 
         </group>
       ))}
 
-      {/* Inner glass layer */}
+      {/* Inner glass layer — meshBasicMaterial so it ignores all lighting.
+          meshStandardMaterial with metalness here picked up spotlight reflections
+          and turned the tint layer bright white/grey on mobile, washing out videos. */}
       <mesh>
         <cylinderGeometry
           args={[radius - 0.01, radius - 0.01, height, segments, 1, true]}
         />
-        <meshStandardMaterial
-          color="black" transparent opacity={0.6}
-          roughness={0.4} metalness={0.2} side={THREE.BackSide}
+        <meshBasicMaterial
+          color="black" transparent opacity={0.55}
+          side={THREE.BackSide}
+          toneMapped={false}
         />
       </mesh>
     </group>

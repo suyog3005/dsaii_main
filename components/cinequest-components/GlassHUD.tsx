@@ -4,11 +4,10 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 const HUD_DATA = [
-  { label:"PRIZE POOL", val:"₹50K",   color:"#ff2828", glow:"rgba(255,35,35,0.7)" },
-  { label:"ROUNDS",     val:"09",     color:"#2288ff", glow:"rgba(25,130,255,0.7)" },
-  { label:"DATE",       val:"APR 19", color:"#ff9500", glow:"rgba(255,145,0,0.65)" },
-  { label:"VENUE",      val:"PVRL",   color:"#aa2ff0", glow:"rgba(155,40,240,0.65)" },
-  { label:"EDITION",    val:"IV",     color:"#18cc88", glow:"rgba(22,195,125,0.65)" },
+  { label:"PRIZE POOL", val:"₹15K",   color:"#ff2828", glow:"rgba(255,35,35,0.7)" },
+  { label:"ROUNDS",     val:"03",     color:"#2288ff", glow:"rgba(25,130,255,0.7)" },
+  { label:"DATE",       val:"APR 04", color:"#ff9500", glow:"rgba(255,145,0,0.65)" },
+  { label:"VENUE",      val:"DIT",   color:"#aa2ff0", glow:"rgba(155,40,240,0.65)" },
 ];
 export default function GlassHUD() {
     

@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 
+const REGISTER_URL = "https://dsaii-submission.vercel.app/";
+
 export default function HeroSection() {
   return (
     <section id="home" className="event-section hero-section">
@@ -32,6 +34,21 @@ export default function HeroSection() {
         >
           Progress is not a straight line
         </motion.p>
+
+        <motion.div
+          className="hero-register-wrap"
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.7, ease: "easeOut" }}
+        >
+          <button
+            type="button"
+            className="hero-register-btn"
+            onClick={() => window.open(REGISTER_URL, "_blank", "noopener,noreferrer")}
+          >
+            Register Now
+          </button>
+        </motion.div>
 
         <motion.div
           className="scroll-indicator"

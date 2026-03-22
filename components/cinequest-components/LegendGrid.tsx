@@ -4,7 +4,21 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { LegendCell } from "./LegendCell";
 
-const MOVIES = [
+type Genre =
+  | "romance"
+  | "action"
+  | "drama"
+  | "epic"
+  | "thriller"
+  | "social"
+  | "crime"
+  | "horror"
+  | "comedy"
+  | "biopic";
+
+type MovieItem = [title: string, genre: Genre];
+
+const MOVIES: MovieItem[] = [
   ["SHOLAY","action"],      ["DEVDAS","romance"],     ["LAGAAN","epic"],
   ["DDLJ","romance"],       ["MUGHAL-E-AZAM","epic"], ["KABHI KHUSHI","romance"],
   ["3 IDIOTS","comedy"],    ["PAKEEZAH","drama"],      ["GUIDE","drama"],
@@ -35,7 +49,7 @@ export function LegendGrid() {
     const data = [];
     for (let i = 0; i < COLS * ROWS; i++) {
       const [title, genre] = MOVIES[i % MOVIES.length];
-      data.push({ title, genre: genre as keyof typeof MOVIES[0], idx: i });
+      data.push({ title, genre, idx: i });
     }
     return data;
   }, []);

@@ -9,7 +9,7 @@ const fileUrl = (fileId: string) =>
 
 export const VIDEO_SOURCES = [
    fileUrl("69bbe9d90025ca2eeb43"),
-  fileUrl("69bbe9eb002dddc9dbbf"),
+  "/cinequest-cylinder.jpeg",
   fileUrl("69bbe9fc002266b50c32"),
   fileUrl("69bbea0b001fcda9997e"),
   fileUrl("69bbb3a80007bcd4260b")  // v5 when ready 

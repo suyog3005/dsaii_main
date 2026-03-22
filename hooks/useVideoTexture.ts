@@ -6,8 +6,8 @@ export function useVideoTexture(
   src:      string,
   active:   boolean   = true,
   onReady?: () => void
-): THREE.VideoTexture | null {
-  const [texture, setTexture] = useState<THREE.VideoTexture | null>(null)
+): THREE.Texture | null {
+  const [texture, setTexture] = useState<THREE.Texture | null>(null)
   const videoRef    = useRef<HTMLVideoElement | null>(null)
   const readyFired  = useRef(false)
 
@@ -26,6 +26,38 @@ export function useVideoTexture(
       videoRef.current.load()
     }
     readyFired.current = false
+
+    const lowerSrc = src.toLowerCase()
+    const isImageSource = /\.(png|jpe?g|webp|gif|avif|svg)(\?|#|$)/.test(lowerSrc)
+
+    if (isImageSource) {
+      const loader = new THREE.TextureLoader()
+      loader.load(
+        src,
+        (loadedTexture) => {
+          loadedTexture.colorSpace = THREE.SRGBColorSpace
+          loadedTexture.minFilter = THREE.LinearFilter
+          loadedTexture.magFilter = THREE.LinearFilter
+          loadedTexture.generateMipmaps = false
+          setTexture(loadedTexture)
+          if (!readyFired.current) {
+            readyFired.current = true
+            onReadyRef.current?.()
+          }
+        },
+        undefined,
+        () => {
+          if (!readyFired.current) {
+            readyFired.current = true
+            onReadyRef.current?.()
+          }
+        }
+      )
+
+      return () => {
+        setTexture(prev => { prev?.dispose(); return null })
+      }
+    }
 
     const video          = document.createElement("video")
     video.crossOrigin    = "anonymous"

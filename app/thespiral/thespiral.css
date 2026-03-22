@@ -168,6 +168,33 @@
   letter-spacing: 0.14em;
 }
 
+.thespiral-root .hero-register-wrap {
+  margin-top: 2.1rem;
+}
+
+.thespiral-root .hero-register-btn {
+  border: 1px solid rgba(130, 220, 255, 0.7);
+  background: rgba(0, 0, 0, 0.42);
+  color: #ecf8ff;
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.65rem;
+  cursor: pointer;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.thespiral-root .hero-register-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(160, 236, 255, 0.95);
+  box-shadow: 0 8px 22px rgba(82, 210, 255, 0.22);
+}
+
+.thespiral-root .hero-register-btn:focus-visible {
+  outline: 2px solid rgba(170, 232, 255, 0.95);
+  outline-offset: 3px;
+}
+
 .thespiral-root .scroll-indicator {
   margin-top: 4rem;
   color: #b5b5b5;

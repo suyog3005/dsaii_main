@@ -95,7 +95,7 @@ function SpiralField() {
 }
 
 function SpiralScene() {
-  const bgVideoUrl = process.env.NEXT_PUBLIC_BG_VIDEO ?? "/videos/v4-opt.mp4";
+  const bgVideoUrl = process.env.NEXT_PUBLIC_BG_VIDEO ?? "/videos/bg1.mp4";
 
   return (
     <div className="scene-layer" aria-hidden>

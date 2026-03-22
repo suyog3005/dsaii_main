@@ -100,6 +100,8 @@ const eventSignals: EventSignal[] = [
   { icon: "🏆", value: "₹10,000", label: "Prize Pool" },
 ];
 
+const REGISTER_URL = "https://dsaii-submission.vercel.app/";
+
 export default function ContentfluxPage() {
   const [showModal, setShowModal] = useState(false);
   const [scrollY, setScrollY] = useState(0);
@@ -196,7 +198,7 @@ export default function ContentfluxPage() {
         <div className="mt-10 flex flex-wrap justify-center gap-4">
           <button
             className="font-head btn-tech rounded-sm bg-cyan px-8 py-3 text-xs font-bold uppercase tracking-[0.15em] text-[#040408] transition hover:scale-105 hover:bg-white hover:shadow-cyan"
-            onClick={() => setShowModal(true)}
+            onClick={() => window.open(REGISTER_URL, "_blank", "noopener,noreferrer")}
           >
             Register Now
           </button>

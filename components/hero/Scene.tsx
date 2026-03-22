@@ -241,8 +241,7 @@ function RegisterBtn({ route }: { route?: string }) {
   return (
     <button
       onClick={handleClick}
-      className="px-6 py-2 border border-white text-white text-sm
-                 hover:bg-white hover:text-black transition duration-300"
+      className="neon-btn"
     >
       Register Now
     </button>
@@ -257,6 +256,48 @@ type OverlayProps = {
 
 function PanelOverlay({ activePanel, visible }: OverlayProps) {
   const panel = PANEL_CONTENT[activePanel] ?? PANEL_CONTENT[0]
+
+  // ── Phase 1: invisible for first 5s after drag unlocks ───────────────────
+  // ── Phase 2: fade in, then blink after 3s of idle ────────────────────────
+  const [shown,    setShown]    = useState(false)  // becomes true after 5s
+  const [blinking, setBlinking] = useState(false)  // becomes true after 3s idle
+
+  // 5s reveal timer — resets if visible toggles off/on
+  useEffect(() => {
+    if (!visible) { setShown(false); setBlinking(false); return }
+    const revealTimer = setTimeout(() => setShown(true), 5000)
+    return () => clearTimeout(revealTimer)
+  }, [visible])
+
+  // 3s idle blink timer — starts only once arrows are shown
+  useEffect(() => {
+    if (!visible || !shown) return
+    let idleTimer: ReturnType<typeof setTimeout>
+    const reset = () => {
+      setBlinking(false)
+      clearTimeout(idleTimer)
+      idleTimer = setTimeout(() => setBlinking(true), 3000)
+    }
+    reset()
+    window.addEventListener("touchstart",  reset, { passive: true })
+    window.addEventListener("pointerdown", reset, { passive: true })
+    window.addEventListener("pointermove", reset, { passive: true })
+    return () => {
+      clearTimeout(idleTimer)
+      window.removeEventListener("touchstart",  reset)
+      window.removeEventListener("pointerdown", reset)
+      window.removeEventListener("pointermove", reset)
+    }
+  }, [visible, shown])
+
+  // ── Update neon glow color to match active panel wall color ─────────────
+  useEffect(() => {
+    const wall = (panel as any).wallColor ?? panel.accent
+    document.querySelectorAll<HTMLElement>(".neon-btn").forEach(el => {
+      el.style.setProperty("--neon-color", wall + "99") // 60% opacity for glow
+      el.style.borderColor = wall + "aa"
+    })
+  }, [activePanel, panel])
 
   return (
     <>
@@ -277,13 +318,6 @@ function PanelOverlay({ activePanel, visible }: OverlayProps) {
         <p className="text-white/70 font-light leading-relaxed mb-5 text-[1rem]">
           {panel.description}
         </p>
-        {/* <div className="h-[2px] mb-4" style={{ background: panel.accent, width: "40px" }} />
-        <div className="flex items-center gap-3">
-          <span className="tracking-wide text-[0.9rem] font-light" style={{ color: panel.accent }}>
-            {panel.cta}
-          </span>
-          <span style={{ color: panel.accent }}>→</span>
-        </div> */}
         <RegisterBtn route={(panel as any).route} />
 
       </div>
@@ -317,12 +351,48 @@ function PanelOverlay({ activePanel, visible }: OverlayProps) {
       >
         {/* Bottom description — event-specific detail */}
         <p className="text-white/60 font-light text-[0.9rem] leading-relaxed text-center">
-          Join us for an unforgettable experience. Compete, collaborate,
-          and push your limits at {panel.title}.
-</p>
+          {(panel as any).mobileBottom}
+        </p>
           
         <RegisterBtn route={(panel as any).route} />
       </div>
+
+      {/* ── Mobile: cylinder nav arrows — hidden 5s, then fade in, blink on idle ── */}
+      {visible && shown && (
+        <>
+          {/* Left chevron */}
+          <button
+            aria-label="Previous event"
+            onClick={() => window.dispatchEvent(new CustomEvent("cylinder-nav", { detail: "left" }))}
+            className={`md:hidden absolute bottom-[30%] left-4 z-20
+                        p-2 bg-transparent border-none
+                        transition-opacity duration-300
+                        ${blinking ? "nav-arrow-flicker" : "opacity-60"}
+                        active:opacity-100`}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M15 19L8 12L15 5" stroke="white" strokeWidth="2"
+                    strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+
+          {/* Right chevron */}
+          <button
+            aria-label="Next event"
+            onClick={() => window.dispatchEvent(new CustomEvent("cylinder-nav", { detail: "right" }))}
+            className={`md:hidden absolute bottom-[30%] right-4 z-20
+                        p-2 bg-transparent border-none
+                        transition-opacity duration-300
+                        ${blinking ? "nav-arrow-flicker" : "opacity-60"}
+                        active:opacity-100`}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M9 5L16 12L9 19" stroke="white" strokeWidth="2"
+                    strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </>
+      )}
 
     </>
   )
@@ -400,6 +470,7 @@ export default function Scene({ onAllReady }: SceneProps) {
     <div className="absolute inset-0">
       <Canvas
         shadows
+        gl={{ toneMapping: THREE.NoToneMapping }}
         dpr={Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 1.5)}
         camera={{ position: [10, 15, 25], fov: isMobile ? 55 : 45 }}
       >

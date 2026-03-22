@@ -20,7 +20,8 @@ const TOTAL_SCROLL = 3000
 
 // How much scroll speed converts to rotation speed.
 // Negative = anticlockwise when scrolling down.
-const SCROLL_TO_ROTATION = -0.003
+const SCROLL_TO_ROTATION        = -0.003   // desktop
+const SCROLL_TO_ROTATION_MOBILE = -0.0075  // 2.5× more responsive on mobile
 
 export default function CameraRig({ onUnlockDrag }: Props) {
   const { camera } = useThree()
@@ -49,7 +50,9 @@ export default function CameraRig({ onUnlockDrag }: Props) {
     // Only rotate during scroll phase (drag not yet unlocked)
     // Once drag is enabled the user controls rotation directly
     if (!scrollVelocity.locked) {
-      scrollVelocity.value = scrollSpeed.current * SCROLL_TO_ROTATION
+      const mobile   = window.innerWidth < 768
+      const multiplier = mobile ? SCROLL_TO_ROTATION_MOBILE : SCROLL_TO_ROTATION
+      scrollVelocity.value = scrollSpeed.current * multiplier
     }
   })
 

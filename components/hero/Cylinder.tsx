@@ -5,7 +5,7 @@ import { useRef, useState, useEffect } from "react"
 import { useFrame } from "@react-three/fiber"
 import { useVideoTexture } from "../../hooks/useVideoTexture"
 import { useDrag } from "../../hooks/useDrag"
-import { VIDEO_SOURCES } from "@/lib/videoConfig"
+import { VIDEO_SOURCES, VIDEO_FALLBACKS } from "@/lib/videoConfig"
 import { scrollVelocity } from "@/lib/scrollVelocity"
 
 // ── Panel content ─────────────────────────────────────────────────────────────
@@ -14,6 +14,7 @@ export const PANEL_CONTENT = [
     title:       "Innovex",
     subtitle:    "The Ultimate Campus Hackathon",
     description: "Push the boundaries of innovation in a 24-hour sprint. Build, pitch, and win alongside the brightest minds on campus.",
+    mobileBottom: "Gather your team, build the future, and compete for glory at Innovex.",
     cta:         "Join Innovex",
     route:       "/innovex",
     accent:      "#F97316",
@@ -24,6 +25,7 @@ export const PANEL_CONTENT = [
     title:       "CineQuest",
     subtitle:    "The Fandom Quiz",
     description: "Test your movie and pop-culture knowledge across rounds of trivia, clips, and deep-cut references. How well do you really know your fandoms?",
+    mobileBottom: "Prove you're the ultimate fan and conquer the trivia at CineQuest.",
     cta:         "Enter the Quiz",
     route:       "/cinequest",
     accent:      "#EF4444",
@@ -34,6 +36,7 @@ export const PANEL_CONTENT = [
     title:       "ContentFlux",
     subtitle:    "AI Video Generation Competition",
     description: "Create, generate, and compete. Use the latest AI tools to craft short-form videos that push creative boundaries.",
+    mobileBottom: "Unleash your AI creativity and craft the best video at ContentFlux.",
     cta:         "Start Creating",
     route:       "/contentflux",
     accent:      "#8B5CF6",
@@ -44,6 +47,7 @@ export const PANEL_CONTENT = [
     title:       "The Spiral",
     subtitle:    "The Technical Treasure Hunt",
     description: "Follow the clues, crack the ciphers, and navigate layers of technical puzzles. Only the sharpest minds reach the centre.",
+    mobileBottom: "Uncover the secrets and race to the centre at The Spiral.",
     cta:         "Begin the Hunt",
     route:       "/thespiral",
     accent:      "#10B981",
@@ -54,6 +58,7 @@ export const PANEL_CONTENT = [
     title:       "GeoVoyager",
     subtitle:    "Find the Place Given",
     description: "Pinpoint locations from photos, clues, and satellite imagery. Every round takes you somewhere new — can you find it before time runs out?",
+    mobileBottom: "Trust your instincts and pinpoint the hidden locations in GeoVoyager.",
     cta:         "Start Exploring",
     route:       "/geovoyager",
     accent:      "#3B82F6",
@@ -78,6 +83,10 @@ export default function Cylinder({ dragEnabled, onActivePanelChange, onAllReady 
   const rotationRef = useRef(0)
   const lastActive  = useRef(0)
   const [activePanel, setActivePanel] = useState(0)
+
+  // ── Snap-to-panel (arrow buttons) ────────────────────────────────────────
+  const snapTarget   = useRef<number | null>(null)
+  const isSnapping   = useRef(false)
 
   // ── Parallel video loading counter ───────────────────────────────────────
   // All 5 videos start loading immediately on mount.
@@ -113,20 +122,51 @@ export default function Cylinder({ dragEnabled, onActivePanelChange, onAllReady 
   }
 
   // ── Video textures — all 5 load in parallel ───────────────────────────────
-  const tex0 = useVideoTexture(VIDEO_SOURCES[0] ?? "", isActive(0), onVideoReady)
-  const tex1 = useVideoTexture(VIDEO_SOURCES[1] ?? "", isActive(1), onVideoReady)
-  const tex2 = useVideoTexture(VIDEO_SOURCES[2] ?? "", isActive(2), onVideoReady)
-  const tex3 = useVideoTexture(VIDEO_SOURCES[3] ?? "", isActive(3), onVideoReady)
-  const tex4 = useVideoTexture(VIDEO_SOURCES[4] ?? "", isActive(4), onVideoReady)
+  const tex0 = useVideoTexture(VIDEO_SOURCES[0] ?? "", isActive(0), onVideoReady, VIDEO_FALLBACKS[0])
+  const tex1 = useVideoTexture(VIDEO_SOURCES[1] ?? "", isActive(1), onVideoReady, VIDEO_FALLBACKS[1])
+  const tex2 = useVideoTexture(VIDEO_SOURCES[2] ?? "", isActive(2), onVideoReady, VIDEO_FALLBACKS[2])
+  const tex3 = useVideoTexture(VIDEO_SOURCES[3] ?? "", isActive(3), onVideoReady, VIDEO_FALLBACKS[3])
+  const tex4 = useVideoTexture(VIDEO_SOURCES[4] ?? "", isActive(4), onVideoReady, VIDEO_FALLBACKS[4])
   const textures = [tex0, tex1, tex2, tex3, tex4]
 
+  // ── Snap to panel via DOM event (mobile arrow buttons) ──────────────────
+  useEffect(() => {
+    const TWO_PI = Math.PI * 2
+    const handler = (e: Event) => {
+      const dir = (e as CustomEvent<"left" | "right">).detail
+      // Which panel to snap to
+      const current = lastActive.current
+      const target  = dir === "right"
+        ? (current + 1) % TOTAL
+        : (current - 1 + TOTAL) % TOTAL
+
+      // Centre angle for the target panel
+      const centreAngle = panelCentres[target] ?? 0
+
+      // We want: (centreAngle + rotation) mod TWO_PI ≈ 0
+      // => rotation = -centreAngle + n*TWO_PI  (pick n so delta is shortest path)
+      const baseTarget = -centreAngle
+      const cur        = rotationRef.current
+      // Normalise delta to [-π, π]
+      let delta = ((baseTarget - cur) % TWO_PI + TWO_PI) % TWO_PI
+      if (delta > Math.PI) delta -= TWO_PI
+      snapTarget.current = cur + delta
+      isSnapping.current = true
+    }
+    window.addEventListener("cylinder-nav", handler)
+    return () => window.removeEventListener("cylinder-nav", handler)
+  // panelCentres is computed below — pass it as stable array length dep
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // ── Drag ─────────────────────────────────────────────────────────────────
+  const isMobileDrag = typeof window !== "undefined" && window.innerWidth < 768
   useDrag({
     enabled: dragEnabled,
-    sensitivity: 0.002,
-    damping: 0.88,
-    onVelocity: (v) => { rotationRef.current += v },
-    onDrag:     (d) => { rotationRef.current += d },
+    sensitivity: isMobileDrag ? 0.005 : 0.002,  // 2.5× more sensitive on mobile
+    damping:     isMobileDrag ? 0.92  : 0.88,   // more glide on mobile
+    onVelocity: (v) => { isSnapping.current = false; rotationRef.current += v },
+    onDrag:     (d) => { isSnapping.current = false; rotationRef.current += d },
   })
 
   // ── Idle rotation ─────────────────────────────────────────────────────────
@@ -177,7 +217,19 @@ export default function Cylinder({ dragEnabled, onActivePanelChange, onAllReady 
   useFrame(() => {
     if (!groupRef.current) return
 
-    if (!dragEnabled) {
+    // ── Snap lerp (arrow buttons) ─────────────────────────────────────────
+    if (isSnapping.current && snapTarget.current !== null) {
+      const remaining = snapTarget.current - rotationRef.current
+      if (Math.abs(remaining) < 0.002) {
+        rotationRef.current = snapTarget.current
+        isSnapping.current  = false
+        snapTarget.current  = null
+      } else {
+        rotationRef.current += remaining * 0.12
+      }
+    }
+
+    if (!dragEnabled && !isSnapping.current) {
       if (scrollVelocity.value !== 0) rotationRef.current += scrollVelocity.value
 
       if (idleActive.current && !isScrolling.current && window.scrollY === 0) {
@@ -191,7 +243,8 @@ export default function Cylinder({ dragEnabled, onActivePanelChange, onAllReady 
 
     groupRef.current.rotation.y = rotationRef.current
 
-    if (!dragEnabled) return
+    // Active panel detection — runs during drag and snap
+    if (!dragEnabled && !isSnapping.current) return
 
     const TWO_PI = Math.PI * 2
     let bestIdx  = 0

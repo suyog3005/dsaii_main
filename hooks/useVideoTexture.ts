@@ -3,13 +3,15 @@ import * as THREE from "three"
 import { useEffect, useRef, useState } from "react"
 
 export function useVideoTexture(
-  src:      string,
-  active:   boolean   = true,
-  onReady?: () => void
+  src:          string,
+  active:       boolean   = true,
+  onReady?:     () => void,
+  fallbackSrc?: string
 ): THREE.Texture | null {
   const [texture, setTexture] = useState<THREE.Texture | null>(null)
-  const videoRef    = useRef<HTMLVideoElement | null>(null)
-  const readyFired  = useRef(false)
+  const videoRef      = useRef<HTMLVideoElement | null>(null)
+  const readyFired    = useRef(false)
+  const videoLoaded   = useRef(false)
 
   // Keep onReady in a ref — so it never causes the effect to re-run
   const onReadyRef = useRef(onReady)
@@ -25,7 +27,8 @@ export function useVideoTexture(
       videoRef.current.src = ""
       videoRef.current.load()
     }
-    readyFired.current = false
+    readyFired.current  = false
+    videoLoaded.current = false
 
     const lowerSrc = src.toLowerCase()
     const isImageSource = /\.(png|jpe?g|webp|gif|avif|svg)(\?|#|$)/.test(lowerSrc)
@@ -59,40 +62,68 @@ export function useVideoTexture(
       }
     }
 
+    // ── Fallback image: show immediately while video loads ──────────────
+    if (fallbackSrc) {
+      const loader = new THREE.TextureLoader()
+      loader.load(fallbackSrc, (fallbackTex) => {
+        // Only use fallback if video hasn't already loaded
+        if (!videoLoaded.current) {
+          fallbackTex.colorSpace      = THREE.SRGBColorSpace
+          fallbackTex.minFilter       = THREE.LinearFilter
+          fallbackTex.magFilter       = THREE.LinearFilter
+          fallbackTex.generateMipmaps = false
+          setTexture(fallbackTex)
+        } else {
+          fallbackTex.dispose()
+        }
+        if (!readyFired.current) {
+          readyFired.current = true
+          onReadyRef.current?.()
+        }
+      })
+    }
+
+    // ── Video element ──────────────────────────────────────────────────
     const video          = document.createElement("video")
     video.crossOrigin    = "anonymous"
     video.loop           = true
     video.muted          = true
     video.playsInline    = true
-    // Use "metadata" instead of "none" — browser fetches just enough
-    // to fire canplay without downloading the whole file.
-    // This triggers the chain without needing play() to be called first.
-    video.preload        = "auto"    // full buffer — no double-fetch on play()
+    video.preload        = "auto"
 
-    // loadeddata fires when first frame is decoded and ready to display
-    // canplay fires too early (just metadata) — video may still be black
     video.addEventListener("loadeddata", () => {
+      videoLoaded.current = true
+
+      if (fallbackSrc) {
+        // Swap fallback image for the real video texture
+        const tex           = new THREE.VideoTexture(video)
+        tex.colorSpace      = THREE.SRGBColorSpace
+        tex.minFilter       = THREE.LinearFilter
+        tex.magFilter       = THREE.LinearFilter
+        tex.generateMipmaps = false
+        setTexture(prev => { prev?.dispose(); return tex })
+      }
+
       if (!readyFired.current) {
         readyFired.current = true
-        // Pause immediately — we just needed canplay to fire for the chain
         video.pause()
         onReadyRef.current?.()
       }
     }, { once: true })
 
-    // load() starts the fetch immediately
     video.src = src
     video.load()
-
     videoRef.current = video
 
-    const tex           = new THREE.VideoTexture(video)
-    tex.colorSpace      = THREE.SRGBColorSpace
-    tex.minFilter       = THREE.LinearFilter
-    tex.magFilter       = THREE.LinearFilter
-    tex.generateMipmaps = false
-
-    setTexture(tex)
+    // If no fallback, create video texture immediately (original behaviour)
+    if (!fallbackSrc) {
+      const tex           = new THREE.VideoTexture(video)
+      tex.colorSpace      = THREE.SRGBColorSpace
+      tex.minFilter       = THREE.LinearFilter
+      tex.magFilter       = THREE.LinearFilter
+      tex.generateMipmaps = false
+      setTexture(tex)
+    }
 
     return () => {
       video.pause()
@@ -101,7 +132,7 @@ export function useVideoTexture(
       videoRef.current = null
       setTexture(prev => { prev?.dispose(); return null })
     }
-  }, [src])
+  }, [src, fallbackSrc])
 
   // Effect 2: play / pause based on active prop
   useEffect(() => {

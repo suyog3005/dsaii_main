@@ -64,7 +64,7 @@ export default function HeroSection() {
   return (
     <>
       {/* /* Loading screen stays visible until all 5 videos fire canplay */ }
-      {/* <LoadingScreen ready={loaded} minDuration={1000} /> */}
+      {/* <LoadingScreen ready={loaded} minDuration={2000} /> */}
 
       <Navbar />
 
@@ -135,20 +135,21 @@ export default function HeroSection() {
               <p className="anim-fade-up anim-d3
                             text-white/90 font-light leading-[1.65]
                             text-[1rem] mb-8">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-                ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                aliquip ex ea commodo consequat. Duis aute irure dolor in
-                reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                culpa qui officia deserunt mollit anim id est laborum.
+                The Data Science and Artificial Intelligence Inquisitive Club (DSAII)
+                 of the Department of Artificial Intelligence and Data Science at Dr.
+                  D. Y. Patil Institute of Technology, Pimpri, Pune proudly presents 
+                  Technovation 4.0, the flagship event of the department. This event 
+                  aims to promote innovation, technical excellence, and analytical t
+                  hinking by providing a platform for students to showcase their skills
+                   and engage in meaningful competition.
               </p>
-              <a href="#"
+              <button
+                 onClick={() => window.scrollBy({ top: window.innerHeight * 1.8, behavior: 'smooth' })}
                  className="anim-fade-up anim-d4 pointer-events-auto text-white font-light
                             border-b border-white pb-1 inline-block hover:opacity-70
-                            transition-opacity text-[1.05rem]">
-                Contact us here!
-              </a>
+                            transition-opacity text-[1.05rem] cursor-pointer bg-transparent">
+                Explore More!
+              </button>
             </div>
 
             {/* ── Mobile text — shorter ── */}
@@ -168,16 +169,17 @@ export default function HeroSection() {
               <p className="anim-fade-up anim-d3
                             text-white/85 font-light leading-[1.6]
                             text-[1.0rem] mb-5">
-                We craft immersive digital events that reimagine how the world
-                gathers, connects and experiences together. We craft immersive digital events that reimagine how the world
-                gathers, connects and experiences together.
+                The DSAII Club of AI&DS proudly presents Technovation 4.0,
+                 a platform designed to foster innovation, technical excellence, 
+                 and analytical thinking through engaging and competitive student participation.
               </p>
-              <a href="#"
+              <button
+                 onClick={() => window.scrollBy({ top: window.innerHeight * 1.8, behavior: 'smooth' })}
                  className="anim-fade-up anim-d4 pointer-events-auto text-white font-light
                             border-b border-white pb-1 inline-block hover:opacity-70
-                            transition-opacity text-[0.85rem]">
-                Contact us here!
-              </a>
+                            transition-opacity text-[0.85rem] cursor-pointer bg-transparent">
+                Explore More!
+              </button>
             </div>
           </div>
 
@@ -199,12 +201,13 @@ export default function HeroSection() {
               <div className="h-[1px] bg-white/60 mb-5"
                    style={{ width: "clamp(200px, 55%, 380px)" }} />
               <p className="text-white/90 font-light leading-[1.65] text-[1rem]">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-                ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                aliquip ex ea commodo consequat. Duis aute irure dolor in
-                reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                pariatur. Excepteur sint occaecat cupidatat non proident.
+                Our theme represents a bold leap into the future, 
+                where imagination meets innovation and boundaries 
+                cease to exist. Inspired by the concept of Mirai,
+                 it reflects the journey from curiosity to creation, 
+                 empowering individuals to explore uncharted possibilities, 
+                 embrace emerging technologies, and redefine what lies ahead
+                  in an ever-evolving digital world
               </p>
             </div>
 
@@ -216,10 +219,10 @@ export default function HeroSection() {
               </h2>
               <div className="h-[1px] bg-white/60 mb-3" style={{ width: "80px" }} />
               <p className="text-white/85 font-light leading-[1.6] text-[0.82rem]">
-                The future of events is here — immersive, digital, and
-                built for the next generation of audiences.
-                vThe future of events is here — immersive, digital, and
-                built for the next generation of audiences.
+                Our theme represents a leap into the future, 
+                where imagination meets innovation, inspiring 
+                curiosity, creativity, and exploration of new 
+                possibilities in an ever-evolving digital world.
               </p>
             </div>
           </div>

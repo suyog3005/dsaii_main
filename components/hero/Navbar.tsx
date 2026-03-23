@@ -10,6 +10,7 @@ const CONTACTS = [
 
 export default function Navbar() {
   const navRef   = useRef<HTMLElement>(null)
+  const navContainerRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
 
@@ -39,19 +40,19 @@ export default function Navbar() {
 
   // Close menus on outside click
   useEffect(() => {
-    const onDocClick = (e: MouseEvent) => {
-      if (!navRef.current) return
-      if (!navRef.current.contains(e.target as Node)) {
+    const onDocPointerDown = (e: PointerEvent) => {
+      if (!navContainerRef.current) return
+      if (!navContainerRef.current.contains(e.target as Node)) {
         setOpen(false)
         setContactOpen(false)
       }
     }
-    document.addEventListener("mousedown", onDocClick)
-    return () => document.removeEventListener("mousedown", onDocClick)
+    document.addEventListener("pointerdown", onDocPointerDown)
+    return () => document.removeEventListener("pointerdown", onDocPointerDown)
   }, [])
 
   return (
-    <>
+    <div ref={navContainerRef}>
       <nav
         ref={navRef}
         className="fixed top-0 left-0 right-0 z-50
@@ -144,10 +145,12 @@ export default function Navbar() {
 
           {/* Hamburger button */}
           <button
+            type="button"
             onClick={() => setOpen(o => !o)}
             className="flex flex-col justify-center items-center
                        w-8 h-8 gap-[5px] cursor-pointer"
             aria-label="Toggle menu"
+            aria-expanded={open}
           >
             <span
               className="block w-5 h-[1.5px] bg-white/70 transition-all duration-300"
@@ -168,7 +171,7 @@ export default function Navbar() {
       {/* ── Mobile dropdown — small floating panel top-right ── */}
       {open && (
         <div
-          className="fixed top-[3rem] right-4 z-40 md:hidden
+          className="fixed top-[3rem] right-4 z-60 md:hidden
                      flex flex-col overflow-hidden rounded-sm"
           style={{
             background: "rgba(255,255,255,0.08)",
@@ -202,6 +205,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

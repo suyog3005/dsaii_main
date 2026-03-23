@@ -533,6 +533,15 @@
     opacity: 0.45;
   }
 
+  .contentflux-root .neon-title {
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.2), 0 0 36px rgba(255, 61, 154, 0.12);
+  }
+
+  .contentflux-root .glitch::before,
+  .contentflux-root .glitch::after {
+    display: none;
+  }
+
   .contentflux-root .tech-orb {
     opacity: 0.3;
   }
@@ -550,13 +559,19 @@
     padding: 12px;
   }
 
+  .contentflux-root .signal-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
   .contentflux-root .signal-value {
-    font-size: 0.84rem;
+    font-size: 0.8rem;
   }
 
   .contentflux-root .signal-label {
-    letter-spacing: 0.16em;
-    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    font-size: 0.56rem;
   }
 
   .contentflux-root .reveal-section {

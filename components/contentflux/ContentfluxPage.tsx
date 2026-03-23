@@ -172,16 +172,16 @@ export default function ContentfluxPage() {
       </video>
 
       <section
-        className="reveal-section is-visible relative z-10 flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16 text-center"
+        className="reveal-section is-visible relative z-10 flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-14 text-center sm:px-6 sm:py-16"
         data-reveal
         style={{ opacity: heroOpacity }}
       >
-        <div className="pointer-events-none absolute left-8 top-8 h-20 w-20 border-l-2 border-t-2 border-cyan/60" />
-        <div className="pointer-events-none absolute bottom-8 right-8 h-20 w-20 border-b-2 border-r-2 border-cyan/60" />
+        <div className="pointer-events-none absolute left-4 top-4 h-14 w-14 border-l-2 border-t-2 border-cyan/60 sm:left-8 sm:top-8 sm:h-20 sm:w-20" />
+        <div className="pointer-events-none absolute bottom-4 right-4 h-14 w-14 border-b-2 border-r-2 border-cyan/60 sm:bottom-8 sm:right-8 sm:h-20 sm:w-20" />
 
         <p className="font-mono mb-5 text-xs uppercase tracking-[0.3em] text-pink">// DSAII Presents</p>
 
-        <h1 className="font-head neon-title text-5xl font-black uppercase leading-[1.05] tracking-[0.06em] text-white sm:text-7xl lg:text-8xl">
+        <h1 className="font-head neon-title text-[2.45rem] font-black uppercase leading-[1.03] tracking-[0.02em] text-white sm:text-7xl sm:tracking-[0.06em] lg:text-8xl">
           <span className="glitch" data-text="CONTENTFLUX">
             CONTENTFLUX
           </span>
@@ -191,13 +191,13 @@ export default function ContentfluxPage() {
           <span className="text-cyan drop-shadow-[0_0_12px_#00fff7]">CHALLENGE</span>
         </h1>
 
-        <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300/70">
+        <p className="mt-5 max-w-2xl px-1 text-[1rem] leading-8 text-slate-300/70 sm:mt-6 sm:px-0 sm:text-lg">
           CONTENTFLUX is a creative AI-powered competition where teams transform ideas into visually compelling short videos from given themes and prompts.
         </p>
 
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
+        <div className="mt-8 flex flex-wrap justify-center gap-4 sm:mt-10">
           <button
-            className="font-head btn-tech rounded-sm bg-cyan px-8 py-3 text-xs font-bold uppercase tracking-[0.15em] text-[#040408] transition hover:scale-105 hover:bg-white hover:shadow-cyan"
+            className="font-head btn-tech rounded-sm bg-cyan px-8 py-3 text-xs font-bold uppercase tracking-[0.14em] text-[#040408] transition hover:scale-105 hover:bg-white hover:shadow-cyan"
             onClick={() => window.open(REGISTER_URL, "_blank", "noopener,noreferrer")}
           >
             Register Now
@@ -205,7 +205,7 @@ export default function ContentfluxPage() {
          
         </div>
 
-        <div className="signal-grid mt-14 w-full max-w-5xl">
+        <div className="signal-grid mt-12 w-full max-w-5xl sm:mt-14">
           {eventSignals.map((signal, index) => (
             <article
               key={signal.label}

@@ -54,7 +54,7 @@ export default function InnovexPage() {
       {/* Cyberpunk Background Layers */}
       <div className="fixed inset-0 z-0">
         {/* Base gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-purple-950/30 to-slate-950"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-indigo-950/40 to-slate-950"></div>
 
         {/* City skyline background */}
         <div className="absolute inset-0 opacity-20">
@@ -95,9 +95,9 @@ export default function InnovexPage() {
         ))}
 
         {/* Gradient orbs for depth */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-600/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-600/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-0 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-0 w-96 h-96 bg-fuchsia-500/20 rounded-full blur-3xl"></div>
       </div>
 
       {/* Main Content */}
@@ -113,7 +113,7 @@ export default function InnovexPage() {
                   <div className="tech-corner tech-corner-tl opacity-50"></div>
                   <div className="tech-corner tech-corner-br opacity-50"></div>
                   <span
-                    className="text-6xl md:text-8xl font-light text-red-400 tracking-[0.3em] px-8 py-4 neon-text"
+                    className="text-6xl md:text-8xl font-light text-cyan-300 tracking-[0.3em] px-8 py-4 neon-text"
                     style={{ fontFamily: "serif" }}
                   >
                     未来
@@ -123,18 +123,18 @@ export default function InnovexPage() {
                 <div className="space-y-6">
                   <h1 className="text-6xl md:text-8xl font-black text-white tracking-tight leading-none">
                     <span className="block">INNOVEX</span>
-                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-500 to-pink-500 mt-2 text-4xl md:text-5xl">
+                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-400 to-fuchsia-400 mt-2 text-4xl md:text-5xl">
                       Innovation in Action
                     </span>
                   </h1>
 
-                  <div className="relative pl-6 border-l-2 border-red-500/50">
+                  <div className="relative pl-6 border-l-2 border-cyan-400/50">
                     <p className="text-xl md:text-2xl text-slate-300 font-light">
                       Solve Real-World Challenges.{" "}
-                      <span className="text-red-400">
+                      <span className="text-cyan-300">
                         Build Practical Solutions.
                       </span>{" "}
-                      <span className="text-orange-400">
+                      <span className="text-violet-300">
                         Transform Campus & Workplace.
                       </span>
                     </p>
@@ -143,21 +143,21 @@ export default function InnovexPage() {
                   {/* Info Pills - Staggered */}
                   <div className="flex flex-wrap gap-4 pt-8">
                     <div className="glass-panel px-6 py-3 rounded-lg hover-glow flex items-center gap-3">
-                      <Calendar className="w-5 h-5 text-red-400" />
+                      <Calendar className="w-5 h-5 text-cyan-300" />
                       <span className="text-white font-mono">
                         3 APR, 2026
                       </span>
                     </div>
 
                     <div className="glass-panel px-6 py-3 rounded-lg hover-glow flex items-center gap-3 mt-6">
-                      <Clock className="w-5 h-5 text-orange-400" />
+                      <Clock className="w-5 h-5 text-violet-300" />
                       <span className="text-white font-mono">
                         6 HOURS
                       </span>
                     </div>
 
                     <div className="glass-panel px-6 py-3 rounded-lg hover-glow flex items-center gap-3">
-                      <Trophy className="w-5 h-5 text-pink-400" />
+                      <Trophy className="w-5 h-5 text-fuchsia-300" />
                       <span className="text-white font-mono">
                         ₹35K PRIZE
                       </span>
@@ -170,20 +170,20 @@ export default function InnovexPage() {
                       type="button"
                       size="lg"
                       onClick={() => window.open(REGISTER_URL, "_blank", "noopener,noreferrer")}
-                      className="relative bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-bold border-0 hover-glow group overflow-hidden"
+                      className="relative bg-gradient-to-r from-cyan-600 to-violet-600 hover:from-cyan-500 hover:to-violet-500 text-white px-8 py-6 text-lg font-bold border-0 hover-glow group overflow-hidden"
                     >
                       <span className="relative z-10 flex items-center gap-2">
                         <Zap className="w-5 h-5" />
                         REGISTER NOW
                         <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                       </span>
-                      <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </Button>
 
                     <Button
                       size="lg"
                       variant="outline"
-                      className="glass-panel border-red-500/50 text-red-400 hover:bg-red-950/50 px-8 py-6 text-lg font-bold"
+                      className="glass-panel border-cyan-400/50 text-cyan-300 hover:bg-cyan-950/30 px-8 py-6 text-lg font-bold"
                       onClick={() =>
                         document
                           .getElementById("info")
@@ -198,13 +198,13 @@ export default function InnovexPage() {
 
                   {/* Terminal-style status */}
                   <div className="terminal-input rounded-lg mt-8 font-mono text-sm text-green-400">
-                    <span className="text-red-400">{">"}</span>{" "}
+                    <span className="text-cyan-300">{">"}</span>{" "}
                     STATUS:{" "}
-                    <span className="text-orange-400">
+                    <span className="text-violet-300">
                       REGISTRATION OPEN
                     </span>{" "}
                     | SLOTS:{" "}
-                    <span className="text-pink-400">
+                    <span className="text-fuchsia-300">
                       LIMITED
                     </span>
                   </div>
@@ -214,8 +214,8 @@ export default function InnovexPage() {
           </div>
 
           {/* Decorative elements */}
-          <div className="absolute top-1/4 -left-12 w-24 h-24 border-2 border-red-500/20 rotate-45"></div>
-          <div className="absolute bottom-1/4 -right-12 w-32 h-32 border-2 border-orange-500/20 rounded-full"></div>
+          <div className="absolute top-1/4 -left-12 w-24 h-24 border-2 border-cyan-500/20 rotate-45"></div>
+          <div className="absolute bottom-1/4 -right-12 w-32 h-32 border-2 border-violet-500/20 rounded-full"></div>
         </section>
 
         {/* Themes/Tracks Section - Asymmetric Grid */}
@@ -224,14 +224,14 @@ export default function InnovexPage() {
             {/* Event Description */}
             <div className="max-w-5xl mx-auto mb-32">
               <div className="inline-flex items-center gap-3 mb-4">
-                <div className="w-12 h-0.5 bg-gradient-to-r from-red-500 to-transparent"></div>
-                <span className="text-red-400 font-mono text-sm tracking-wider">
+                <div className="w-12 h-0.5 bg-gradient-to-r from-cyan-400 to-transparent"></div>
+                <span className="text-cyan-300 font-mono text-sm tracking-wider">
                   EVENT_DESCRIPTION
                 </span>
               </div>
               <h2 className="text-5xl md:text-6xl font-black text-white mb-8">
                 About{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-orange-400">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-violet-300">
                   INNOVEX
                 </span>
               </h2>
@@ -243,33 +243,33 @@ export default function InnovexPage() {
 
                 <div className="holographic-card rounded-2xl p-8 my-8">
                   <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
-                    <Sparkles className="w-6 h-6 text-orange-400" />
+                    <Sparkles className="w-6 h-6 text-violet-300" />
                     Problem Domains
                   </h3>
                   <p className="text-slate-300 mb-4">The hackathon revolves around problem statements inspired by real campus and workplace scenarios, such as:</p>
                   <ul className="space-y-3 text-slate-300">
                     <li className="flex items-start gap-3">
-                      <span className="text-red-400 mt-1">▹</span>
+                      <span className="text-cyan-300 mt-1">▹</span>
                       <span>Inefficient attendance and academic tracking systems</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-red-400 mt-1">▹</span>
+                      <span className="text-cyan-300 mt-1">▹</span>
                       <span>Communication gaps between students, faculty, and administration</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-red-400 mt-1">▹</span>
+                      <span className="text-cyan-300 mt-1">▹</span>
                       <span>Event and resource management within campuses</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-red-400 mt-1">▹</span>
+                      <span className="text-cyan-300 mt-1">▹</span>
                       <span>Productivity and workflow challenges in workplace environments</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-red-400 mt-1">▹</span>
+                      <span className="text-cyan-300 mt-1">▹</span>
                       <span>Campus navigation, hostel/mess management, and daily student life issues</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="text-red-400 mt-1">▹</span>
+                      <span className="text-cyan-300 mt-1">▹</span>
                       <span>Digital solutions for improving collaboration, scheduling, and task management</span>
                     </li>
                   </ul>
@@ -288,14 +288,14 @@ export default function InnovexPage() {
             {/* Rules & Guidelines */}
             <div className="max-w-5xl mx-auto">
               <div className="inline-flex items-center gap-3 mb-4">
-                <div className="w-12 h-0.5 bg-gradient-to-r from-orange-500 to-transparent"></div>
-                <span className="text-orange-400 font-mono text-sm tracking-wider">
+                <div className="w-12 h-0.5 bg-gradient-to-r from-violet-400 to-transparent"></div>
+                <span className="text-violet-300 font-mono text-sm tracking-wider">
                   RULES_AND_GUIDELINES
                 </span>
               </div>
               <h2 className="text-5xl md:text-6xl font-black text-white mb-12">
                 Rules &{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-400">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-fuchsia-300">
                   Guidelines
                 </span>
               </h2>
@@ -304,16 +304,16 @@ export default function InnovexPage() {
                 {/* Team Formation */}
                 <div className="holographic-card rounded-2xl p-6 hover-glow">
                   <div className="flex items-center gap-3 mb-4">
-                    <Users className="w-6 h-6 text-red-400" />
+                    <Users className="w-6 h-6 text-cyan-300" />
                     <h3 className="text-xl font-bold text-white">Team Formation</h3>
                   </div>
                   <ul className="space-y-2 text-slate-300">
                     <li className="flex items-start gap-2">
-                      <span className="text-red-400 mt-1">▹</span>
+                      <span className="text-cyan-300 mt-1">▹</span>
                       <span>Each team must consist of 2–4 members</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-red-400 mt-1">▹</span>
+                      <span className="text-cyan-300 mt-1">▹</span>
                       <span>Teams can include participants from different colleges and branches</span>
                     </li>
                   </ul>
@@ -322,28 +322,28 @@ export default function InnovexPage() {
                 {/* General Rules */}
                 <div className="holographic-card rounded-2xl p-6 hover-glow">
                   <div className="flex items-center gap-3 mb-4">
-                    <Shield className="w-6 h-6 text-orange-400" />
+                    <Shield className="w-6 h-6 text-violet-300" />
                     <h3 className="text-xl font-bold text-white">General Rules</h3>
                   </div>
                   <ul className="space-y-2 text-slate-300">
                     <li className="flex items-start gap-2">
-                      <span className="text-orange-400 mt-1">▹</span>
+                      <span className="text-violet-300 mt-1">▹</span>
                       <span>All solutions must be original and developed during the hackathon</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-orange-400 mt-1">▹</span>
+                      <span className="text-violet-300 mt-1">▹</span>
                       <span>AI tools are allowed based on participant preference</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-orange-400 mt-1">▹</span>
+                      <span className="text-violet-300 mt-1">▹</span>
                       <span>Pre-built templates/tools are allowed, but core logic must be developed during the event</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-orange-400 mt-1">▹</span>
+                      <span className="text-violet-300 mt-1">▹</span>
                       <span>Solutions must focus on campus or workplace-related problems</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-orange-400 mt-1">▹</span>
+                      <span className="text-violet-300 mt-1">▹</span>
                       <span>Evaluation will be feature-focused, prioritizing functionality and usability</span>
                     </li>
                   </ul>
@@ -352,16 +352,16 @@ export default function InnovexPage() {
                 {/* Submission Requirements */}
                 <div className="holographic-card rounded-2xl p-6 hover-glow">
                   <div className="flex items-center gap-3 mb-4">
-                    <Code className="w-6 h-6 text-pink-400" />
+                    <Code className="w-6 h-6 text-fuchsia-300" />
                     <h3 className="text-xl font-bold text-white">Submission Requirements</h3>
                   </div>
                   <ul className="space-y-2 text-slate-300">
                     <li className="flex items-start gap-2">
-                      <span className="text-pink-400 mt-1">▹</span>
+                      <span className="text-fuchsia-300 mt-1">▹</span>
                       <span>Working prototype (web/app/model)</span>
                     </li>
                     <li className="flex items-start gap-2">
-                      <span className="text-pink-400 mt-1">▹</span>
+                      <span className="text-fuchsia-300 mt-1">▹</span>
                       <span>Source code (GitHub repository or ZIP file)</span>
                     </li>
                   </ul>
@@ -401,20 +401,20 @@ export default function InnovexPage() {
               {/* Code of Conduct */}
               <div className="holographic-card rounded-2xl p-8 mt-6 hover-glow">
                 <div className="flex items-center gap-3 mb-4">
-                  <Lock className="w-6 h-6 text-red-400" />
+                  <Lock className="w-6 h-6 text-cyan-300" />
                   <h3 className="text-2xl font-bold text-white">Code of Conduct</h3>
                 </div>
                 <ul className="space-y-3 text-slate-300 text-lg">
                   <li className="flex items-start gap-3">
-                    <span className="text-red-400 mt-1">▹</span>
+                    <span className="text-cyan-300 mt-1">▹</span>
                     <span>No plagiarism or copying (instant disqualification)</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="text-red-400 mt-1">▹</span>
+                    <span className="text-cyan-300 mt-1">▹</span>
                     <span>Maintain discipline and fair play</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="text-red-400 mt-1">▹</span>
+                    <span className="text-cyan-300 mt-1">▹</span>
                     <span>Judges' decisions will be final</span>
                   </li>
                 </ul>
@@ -435,11 +435,11 @@ export default function InnovexPage() {
                 </div>
 
                 <div className="holographic-card rounded-2xl p-8 hover-glow text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-500/20 to-pink-500/20 rounded-lg mb-4">
-                    <Trophy className="w-8 h-8 text-orange-400" />
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 rounded-lg mb-4">
+                    <Trophy className="w-8 h-8 text-violet-300" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-2">Prize Pool</h3>
-                  <p className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-400">
+                  <p className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-fuchsia-300">
                     ₹35,000
                   </p>
                   <p className="text-slate-400 mt-2">up to</p>
@@ -456,15 +456,15 @@ export default function InnovexPage() {
               {/* Section Header */}
               <div className="text-center mb-20">
                 <div className="inline-flex items-center gap-3 mb-4">
-                  <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-orange-500 to-transparent"></div>
-                  <span className="text-orange-400 font-mono text-sm tracking-wider">
+                  <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-violet-400 to-transparent"></div>
+                  <span className="text-violet-300 font-mono text-sm tracking-wider">
                     TIMELINE
                   </span>
-                  <div className="w-12 h-0.5 bg-gradient-to-r from-orange-500 to-transparent"></div>
+                  <div className="w-12 h-0.5 bg-gradient-to-r from-violet-400 to-transparent"></div>
                 </div>
                 <h2 className="text-5xl md:text-6xl font-black text-white mb-6">
                   Event{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-400">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 to-fuchsia-300">
                     Schedule
                   </span>
                 </h2>
@@ -476,7 +476,7 @@ export default function InnovexPage() {
               {/* Timeline */}
               <div className="relative">
                 {/* Central line */}
-                <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-red-500/50 via-orange-500/50 to-pink-500/50"></div>
+                <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-400/50 via-violet-400/50 to-fuchsia-400/50"></div>
 
                 {/* Timeline Items - Alternating */}
                 <div className="space-y-12">
@@ -486,21 +486,21 @@ export default function InnovexPage() {
                       title: "Hackathon Begins",
                       desc: "Opening ceremony, team registration, and kickoff",
                       position: "left",
-                      color: "red",
+                      color: "cyan",
                     },
                     {
                       time: "10:00 AM – 4:00 PM",
                       title: "Development Phase",
                       desc: "6-hour intensive coding session. Build your prototypes! Lunch will be provided.",
                       position: "right",
-                      color: "orange",
+                      color: "violet",
                     },
                     {
                       time: "4:00 PM – 6:00 PM",
                       title: "Presentations & Judging",
                       desc: "Teams present their solutions and judges evaluate the projects",
                       position: "left",
-                      color: "pink",
+                      color: "fuchsia",
                     },
                   ].map((item, index) => (
                     <div

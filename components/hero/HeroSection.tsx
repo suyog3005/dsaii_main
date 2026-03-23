@@ -2,7 +2,7 @@
 import React from "react"
 import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import Navbar from "./Navbar"
 import LoadingScreen from "./LoadingScreen"
 import { PANEL_CONTENT } from "./Cylinder"
@@ -16,20 +16,29 @@ const Scene = dynamic(
 function SceneGone({ route }: { route: string }) {
   const router = useRouter()
   useEffect(() => {
+    router.prefetch(route)
     // Give React/Fiber enough time to fully remove the Canvas from the DOM 
     // before Next.js triggers the route change, avoiding removeChild errors.
     const t = setTimeout(() => {
       router.push(route)
-    }, 100)
+    }, 80)
     return () => clearTimeout(t)
   }, [route, router])
   return null
 }
 
 export default function HeroSection() {
+  const router = useRouter()
   const [loaded, setLoaded]           = useState(false)
   const [pendingRoute, setPendingRoute] = useState<string | null>(null)
   const [activePanel, setActivePanel]  = useState(0)
+  const prefetchedRoutes = useRef<Set<string>>(new Set())
+
+  const prefetchRoute = useCallback((route?: string | null) => {
+    if (!route || prefetchedRoutes.current.has(route)) return
+    prefetchedRoutes.current.add(route)
+    router.prefetch(route)
+  }, [router])
 
   // Listen for DOM event from Cylinder
   useEffect(() => {
@@ -44,11 +53,32 @@ export default function HeroSection() {
   useEffect(() => {
     const handler = (e: Event) => {
       const route = (e as CustomEvent<string>).detail
+      prefetchRoute(route)
       setPendingRoute(route)
     }
     window.addEventListener("navigate-to", handler)
     return () => window.removeEventListener("navigate-to", handler)
-  }, [])
+  }, [prefetchRoute])
+
+  // Prefetch on intent (hover/focus/touch) from register buttons.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const route = (e as CustomEvent<string>).detail
+      prefetchRoute(route)
+    }
+    window.addEventListener("prefetch-route", handler)
+    return () => window.removeEventListener("prefetch-route", handler)
+  }, [prefetchRoute])
+
+  // Stagger background prefetch so panel routes are warm before user clicks.
+  useEffect(() => {
+    const routes = PANEL_CONTENT.map((p) => (p as any).route as string | undefined)
+      .filter((route): route is string => Boolean(route))
+    const timers = routes.map((route, index) =>
+      window.setTimeout(() => prefetchRoute(route), 400 + index * 220)
+    )
+    return () => timers.forEach((timer) => window.clearTimeout(timer))
+  }, [prefetchRoute])
 
   // Track which panel is front-and-center from Scene's rotation
   useEffect(() => {

@@ -232,6 +232,12 @@ function ColorLerper({
 // then SceneGone (rendered in place of Scene) calls router.push in useEffect —
 // guaranteed to run only AFTER React has committed the Scene unmount to the DOM.
 function RegisterBtn({ route }: { route?: string }) {
+  const emitPrefetch = () => {
+    window.dispatchEvent(
+      new CustomEvent("prefetch-route", { detail: route ?? "/" })
+    )
+  }
+
   const handleClick = () => {
     window.dispatchEvent(
       new CustomEvent("navigate-to", { detail: route ?? "/" })
@@ -240,6 +246,9 @@ function RegisterBtn({ route }: { route?: string }) {
 
   return (
     <button
+      onMouseEnter={emitPrefetch}
+      onFocus={emitPrefetch}
+      onTouchStart={emitPrefetch}
       onClick={handleClick}
       className="neon-btn"
     >

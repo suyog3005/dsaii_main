@@ -76,9 +76,15 @@ type Props = {
   dragEnabled: boolean
   onActivePanelChange?: (index: number) => void
   onAllReady?: () => void
+  innerTintOpacity?: number
 }
 
-export default function Cylinder({ dragEnabled, onActivePanelChange, onAllReady }: Props) {
+export default function Cylinder({
+  dragEnabled,
+  onActivePanelChange,
+  onAllReady,
+  innerTintOpacity = 0.55,
+}: Props) {
   const groupRef    = useRef<THREE.Group>(null!)
   const rotationRef = useRef(0)
   const lastActive  = useRef(0)
@@ -311,7 +317,7 @@ export default function Cylinder({ dragEnabled, onActivePanelChange, onAllReady 
           args={[radius - 0.01, radius - 0.01, height, segments, 1, true]}
         />
         <meshBasicMaterial
-          color="black" transparent opacity={0.55}
+          color="black" transparent opacity={innerTintOpacity}
           side={THREE.BackSide}
           toneMapped={false}
         />

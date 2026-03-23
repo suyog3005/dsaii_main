@@ -545,6 +545,7 @@ export default function Scene({ onAllReady }: SceneProps) {
           dragEnabled={dragEnabled}
           onActivePanelChange={handlePanelChange}
           onAllReady={onAllReady}
+          innerTintOpacity={isMobile ? 0.35 : 0.55}
         />
 
       </Canvas>

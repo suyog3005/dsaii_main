@@ -3,9 +3,15 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 
+const CONTACTS = [
+  { name: "Ajinkya", phone: "7447422933" },
+  { name: "Suyog", phone: "9421827472" },
+]
+
 export default function Navbar() {
   const navRef   = useRef<HTMLElement>(null)
   const [open, setOpen] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
 
   useEffect(() => {
     const onScroll = () => {
@@ -18,13 +24,31 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  // Close menu on route change or outside click
+  // Close menus with Escape
   useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false) }
+    if (!open && !contactOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false)
+        setContactOpen(false)
+      }
+    }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [open])
+  }, [open, contactOpen])
+
+  // Close menus on outside click
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!navRef.current) return
+      if (!navRef.current.contains(e.target as Node)) {
+        setOpen(false)
+        setContactOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", onDocClick)
+    return () => document.removeEventListener("mousedown", onDocClick)
+  }, [])
 
   return (
     <>
@@ -60,11 +84,37 @@ export default function Navbar() {
                         font-light tracking-widest uppercase transition-colors duration-200">
             About
           </a>
-          <a href="#contact"
-             className="text-white/60 hover:text-white text-[0.85rem]
-                        font-light tracking-widest uppercase transition-colors duration-200">
-            Contact
-          </a>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setContactOpen(v => !v)}
+              className="text-white/60 hover:text-white text-[0.85rem]
+                         font-light tracking-widest uppercase transition-colors duration-200"
+            >
+              Contact
+            </button>
+
+            {contactOpen && (
+              <div
+                className="absolute top-full mt-3 right-0 min-w-[220px] rounded-sm border border-white/20 p-2"
+                style={{
+                  background: "rgba(8,8,8,0.88)",
+                  backdropFilter: "blur(14px)",
+                  WebkitBackdropFilter: "blur(14px)",
+                }}
+              >
+                {CONTACTS.map((contact) => (
+                  <a
+                    key={contact.phone}
+                    href={`tel:${contact.phone}`}
+                    className="block px-3 py-2 text-white/85 hover:text-white hover:bg-white/10 text-[0.78rem] tracking-wide transition-colors"
+                  >
+                    {contact.name} - {contact.phone}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
            <a href="https://dsaii-submission.vercel.app/"
              className="relative overflow-hidden px-5 py-2
                         text-[0.82rem] font-medium tracking-widest uppercase
@@ -135,13 +185,21 @@ export default function Navbar() {
                         border-b border-white/10 transition-colors">
             About
           </a>
-          <a href="#contact"
-             onClick={() => setOpen(false)}
-             className="px-5 py-3 text-white/80 hover:text-white
-                        text-[0.72rem] tracking-widest uppercase
-                        transition-colors">
-            Contact
-          </a>
+          <div className="px-5 py-3 border-t border-white/10">
+            <p className="text-white/70 text-[0.68rem] tracking-widest uppercase mb-2">Contact</p>
+            <div className="flex flex-col gap-1">
+              {CONTACTS.map((contact) => (
+                <a
+                  key={contact.phone}
+                  href={`tel:${contact.phone}`}
+                  onClick={() => setOpen(false)}
+                  className="text-white/80 hover:text-white text-[0.72rem] transition-colors"
+                >
+                  {contact.name} - {contact.phone}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </>

@@ -145,7 +145,7 @@ export default function InnovexPage() {
                     <div className="glass-panel px-6 py-3 rounded-lg hover-glow flex items-center gap-3">
                       <Calendar className="w-5 h-5 text-cyan-300" />
                       <span className="text-white font-mono">
-                        3 APR, 2026
+                        4 APR, 2026
                       </span>
                     </div>
 

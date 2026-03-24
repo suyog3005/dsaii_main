@@ -3,4 +3,4 @@ import "./contentflux.css";
 
 export default function Page() {
   return <ContentfluxPage />;
-}
+}                                            

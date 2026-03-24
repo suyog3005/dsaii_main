@@ -50,7 +50,7 @@ export default function GeoVoyagerPage() {
           <div className="meta-item">
             <div className="meta-dot" />
             <span>
-              <strong>April 4, 2026</strong> - Morning Session
+              <strong>April 5, 2026</strong> - Morning Session
             </span>
           </div>
           <div className="meta-item">
